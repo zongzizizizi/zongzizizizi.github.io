@@ -1,0 +1,4877 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>粽子课表</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cpath%20d%3D%22M32%207C43%2015%2054%2032%2058%2048H6C10%2032%2021%2015%2032%207Z%22%20fill%3D%22%23cdefa4%22%2F%3E%3Cpath%20d%3D%22M32%207C43%2015%2054%2032%2058%2048H6C10%2032%2021%2015%2032%207Z%22%20fill%3D%22none%22%20stroke%3D%22%2358a04e%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M32%207L12%2048M32%207L52%2048%22%20stroke%3D%22%2394c966%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.75%22%2F%3E%3Cpath%20d%3D%22M6%2048C17%2058%2047%2058%2058%2048L54%2056C43%2063%2021%2063%2010%2056Z%22%20fill%3D%22%2363a84e%22%2F%3E%3Cpath%20d%3D%22M6%2048C17%2058%2047%2058%2058%2048%22%20fill%3D%22none%22%20stroke%3D%22%237fb75d%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2230%22%20r%3D%226%22%20fill%3D%22%2328491f%22%2F%3E%3Ccircle%20cx%3D%2240%22%20cy%3D%2230%22%20r%3D%226%22%20fill%3D%22%2328491f%22%2F%3E%3Ccircle%20cx%3D%2226%22%20cy%3D%2228%22%20r%3D%222%22%20fill%3D%22%23ffffff%22%2F%3E%3Ccircle%20cx%3D%2242%22%20cy%3D%2228%22%20r%3D%222%22%20fill%3D%22%23ffffff%22%2F%3E%3Cellipse%20cx%3D%2217%22%20cy%3D%2237%22%20rx%3D%224.5%22%20ry%3D%223%22%20fill%3D%22%23ffc5d3%22%20opacity%3D%220.95%22%2F%3E%3Cellipse%20cx%3D%2247%22%20cy%3D%2237%22%20rx%3D%224.5%22%20ry%3D%223%22%20fill%3D%22%23ffc5d3%22%20opacity%3D%220.95%22%2F%3E%3Cpath%20d%3D%22M27%2038Q32%2045%2037%2038%22%20fill%3D%22none%22%20stroke%3D%22%2328491f%22%20stroke-width%3D%222.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M21%2025Q32%2020%2043%2025%22%20fill%3D%22none%22%20stroke%3D%22%23f6efd1%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E">
+  <style>
+    :root {
+      --bg: #f7f8fd;
+      --surface: #ffffff;
+      --ink: #3d3c52;
+      --muted: #9291a5;
+      --line: #ecebf3;
+      --line-soft: #f3f2f8;
+      --accent: #f29eb3;
+      --accent-deep: #e4718d;
+      --radius-small: 14px;
+      --radius-medium: 20px;
+      --radius-large: 26px;
+      --radius-card: 18px;
+      --hour-height: 52px;
+      --grid-height: 728px;
+      --gutter: 64px;
+      --day-min: 134px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "MiSans", "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1560px;
+      margin: 0 auto;
+      padding: 22px clamp(12px, 2.6vw, 36px) 38px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 4px 2px 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      display: grid;
+      flex: 0 0 auto;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border: 1px solid #e2ecd1;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fffdf2, #f7ffe1);
+      color: #4b8f3d;
+      box-shadow: 0 6px 16px rgba(112, 137, 78, 0.1);
+    }
+
+    .brand-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 23px;
+      line-height: 1.2;
+      font-weight: 800;
+    }
+
+    .today-caption {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .week-summary {
+      display: flex;
+      gap: 18px;
+      padding-right: 4px;
+    }
+
+    .summary-item {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .summary-item b {
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .commute-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(226, 224, 238, 0.9);
+      border-radius: var(--radius-large);
+      background: var(--surface);
+      box-shadow: 0 8px 22px rgba(82, 78, 120, 0.06);
+    }
+
+    .commute-banner.is-leave {
+      border-color: #ffd0bc;
+      background: linear-gradient(135deg, #fffaf4, #fff0ea);
+    }
+
+    .commute-icon {
+      display: grid;
+      flex: 0 0 auto;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border-radius: 14px;
+      background: #eef3ff;
+      color: #5264c9;
+    }
+
+    .commute-banner.is-leave .commute-icon {
+      background: #ffe4d6;
+      color: #c05c38;
+    }
+
+    .commute-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .commute-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .commute-title {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .commute-detail {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .commute-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      flex-wrap: wrap;
+    }
+
+    .commute-countdown {
+      font-size: 20px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .commute-depart {
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #fff1c9;
+      color: #95611a;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .commute-route-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .commute-route-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 96px;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .commute-route-row > span {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .commute-route-row input {
+      width: 100%;
+    }
+
+    @media (max-width: 680px) {
+      .commute-banner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .commute-meta {
+        width: 100%;
+        margin-left: 0;
+        justify-content: space-between;
+      }
+
+      .commute-route-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .schedule-panel {
+      overflow: hidden;
+      border: 1px solid rgba(227, 225, 237, 0.9);
+      border-radius: var(--radius-large);
+      background: var(--surface);
+      box-shadow: 0 10px 30px rgba(82, 78, 120, 0.07);
+    }
+
+    .schedule-scroll {
+      overflow: auto;
+      max-height: calc(100vh - 178px);
+      scrollbar-color: #d9d7e7 transparent;
+      scrollbar-width: thin;
+    }
+
+    .day-header-row {
+      position: sticky;
+      top: 0;
+      z-index: 8;
+      display: flex;
+      width: max-content;
+      min-width: 100%;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+    }
+
+    .corner-cell {
+      position: sticky;
+      left: 0;
+      z-index: 9;
+      display: flex;
+      flex: 0 0 var(--gutter);
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .day-head {
+      display: flex;
+      flex: 1 0 var(--day-min);
+      min-width: 0;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      min-height: 64px;
+      border-left: 1px solid transparent;
+      background: #fff;
+    }
+
+    .day-head + .day-head {
+      border-left-color: var(--line);
+    }
+
+    .day-head.is-today {
+      background: #fff9ed;
+    }
+
+    .day-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .day-date {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .today-tag {
+      display: none;
+      margin-left: 4px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #ffe1a8;
+      color: #9a6210;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .day-head.is-today .today-tag {
+      display: inline-block;
+    }
+
+    .schedule-body {
+      position: relative;
+      display: flex;
+      width: max-content;
+      min-width: 100%;
+      height: var(--grid-height);
+    }
+
+    .time-axis {
+      position: sticky;
+      left: 0;
+      z-index: 4;
+      flex: 0 0 var(--gutter);
+      height: var(--grid-height);
+      border-right: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .time-label {
+      position: absolute;
+      left: 8px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .day-column {
+      position: relative;
+      flex: 1 0 var(--day-min);
+      min-width: 0;
+      height: var(--grid-height);
+      overflow: hidden;
+      border-left: 1px solid transparent;
+      background: #fff;
+    }
+
+    .day-column + .day-column {
+      border-left-color: var(--line);
+    }
+
+    .day-column.is-today {
+      background: #fffaf0;
+    }
+
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0 calc(var(--hour-height) - 1px),
+          rgba(102, 99, 131, 0.13) calc(var(--hour-height) - 1px) var(--hour-height)
+        ),
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0 calc(var(--hour-height) / 2 - 1px),
+          rgba(102, 99, 131, 0.05) calc(var(--hour-height) / 2 - 1px) var(--hour-height)
+        );
+    }
+
+    .course-card {
+      position: absolute;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      overflow: hidden;
+      padding: 5px 7px;
+      border: 1px solid;
+      border-radius: calc(var(--radius-card) + 2px);
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(76, 73, 109, 0.06);
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .course-card:hover {
+      z-index: 6;
+      transform: translateY(-1px);
+      box-shadow: 0 7px 14px rgba(76, 73, 109, 0.14);
+    }
+
+    .course-card:focus-visible {
+      z-index: 6;
+      outline: 2px solid #7e72e8;
+      outline-offset: 2px;
+    }
+
+    .attendance-badge {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      z-index: 1;
+      display: grid;
+      width: 13px;
+      height: 13px;
+      place-items: center;
+      border-radius: 50%;
+      background: #4bbf79;
+      color: #fff;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+    }
+
+    .attendance-badge svg {
+      width: 8px;
+      height: 8px;
+    }
+
+    .mood-badge {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      z-index: 1;
+      display: grid;
+      width: 16px;
+      height: 16px;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 0 0 1px rgba(80, 76, 108, 0.08);
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .timeline-course .mood-badge {
+      width: 22px;
+      height: 22px;
+      font-size: 15px;
+    }
+
+    .course-card.has-mood .course-title,
+    .timeline-course.has-mood .course-title {
+      padding-left: 22px;
+    }
+
+    .course-card.is-live::after {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      width: 8px;
+      height: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.95);
+      border-radius: 50%;
+      background: #ff9b3d;
+      box-shadow: 0 0 0 1px rgba(216, 120, 24, 0.4);
+      content: "";
+    }
+
+    .course-time {
+      display: block;
+      max-width: 100%;
+      overflow: hidden;
+      padding-right: 16px;
+      color: rgba(56, 58, 72, 0.72);
+      font-size: 10px;
+      line-height: 1.1;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .course-title {
+      display: -webkit-box;
+      overflow: hidden;
+      margin: 3px 0 0;
+      font-size: 13px;
+      line-height: 1.2;
+      font-weight: 800;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow-wrap: anywhere;
+    }
+
+    .course-meta {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      max-width: 100%;
+      min-height: 0;
+      margin-top: auto;
+      padding-top: 4px;
+      overflow: hidden;
+      color: rgba(56, 58, 72, 0.68);
+      font-size: 10px;
+      line-height: 1.2;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .course-meta span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .course-meta svg {
+      flex: 0 0 auto;
+      width: 11px;
+      height: 11px;
+    }
+
+    .course-tag {
+      display: inline-flex;
+      max-width: 100%;
+      align-items: center;
+      margin-top: 4px;
+      padding: 2px 6px;
+      overflow: hidden;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 800;
+      line-height: 1.2;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .timeline-course .course-tag {
+      margin-top: 6px;
+      padding: 3px 8px;
+      font-size: 10px;
+    }
+
+    .course-tag.t-easy {
+      background: #e0f7e8;
+      color: #2f7d52;
+    }
+
+    .course-tag.t-hard {
+      background: #ffe7df;
+      color: #c3513d;
+    }
+
+    .course-tag.t-lab {
+      background: #e6ecff;
+      color: #4a66d6;
+    }
+
+    .course-card.is-compact .course-meta {
+      display: none;
+    }
+
+    .course-card.is-compact .course-tag,
+    .course-card.is-tiny .course-tag {
+      display: none;
+    }
+
+    .course-card.is-compact .course-title {
+      font-size: 12px;
+      -webkit-line-clamp: 1;
+    }
+
+    .course-card.is-tiny .course-time {
+      display: none;
+    }
+
+    .course-card.is-tiny .course-title {
+      margin: 0;
+      font-size: 11px;
+      -webkit-line-clamp: 1;
+    }
+
+    .course-card.c-mint,
+    .timeline-course.c-mint {
+      border-color: rgba(117, 203, 145, 0.56);
+      background: linear-gradient(135deg, rgba(226, 247, 236, 0.82), rgba(239, 255, 246, 0.58));
+    }
+
+    .course-card.c-peach,
+    .timeline-course.c-peach {
+      border-color: rgba(239, 166, 120, 0.62);
+      background: linear-gradient(135deg, rgba(255, 235, 222, 0.86), rgba(255, 246, 239, 0.58));
+    }
+
+    .course-card.c-sky,
+    .timeline-course.c-sky {
+      border-color: rgba(124, 184, 237, 0.62);
+      background: linear-gradient(135deg, rgba(228, 242, 254, 0.88), rgba(243, 251, 255, 0.58));
+    }
+
+    .course-card.c-lemon,
+    .timeline-course.c-lemon {
+      border-color: rgba(229, 197, 105, 0.66);
+      background: linear-gradient(135deg, rgba(255, 244, 204, 0.86), rgba(255, 252, 235, 0.58));
+    }
+
+    .course-card.c-lilac,
+    .timeline-course.c-lilac {
+      border-color: rgba(165, 145, 226, 0.62);
+      background: linear-gradient(135deg, rgba(239, 233, 253, 0.88), rgba(250, 247, 255, 0.58));
+    }
+
+    .course-card.c-rose,
+    .timeline-course.c-rose {
+      border-color: rgba(237, 145, 172, 0.62);
+      background: linear-gradient(135deg, rgba(254, 230, 238, 0.86), rgba(255, 247, 250, 0.58));
+    }
+
+    .now-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      z-index: 5;
+      height: 2px;
+      background: #ff587f;
+      pointer-events: none;
+    }
+
+    .now-line::before {
+      position: absolute;
+      top: -4px;
+      left: -3px;
+      width: 10px;
+      height: 10px;
+      border: 2px solid #ff587f;
+      border-radius: 50%;
+      background: #fff;
+      content: "";
+    }
+
+    .empty-note {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 1;
+      display: none;
+      transform: translate(-50%, -50%);
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .empty-note svg {
+      display: block;
+      width: 34px;
+      height: 34px;
+      margin: 0 auto 8px;
+      opacity: 0.55;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 36px;
+      padding: 0 14px;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .btn-primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 6px 14px rgba(242, 158, 179, 0.24);
+    }
+
+    .btn-primary:hover {
+      border-color: var(--accent-deep);
+      background: var(--accent-deep);
+    }
+
+    .btn-ghost {
+      border-color: #e5e3ef;
+      background: #fff;
+      color: #66647d;
+    }
+
+    .btn-ghost:hover {
+      border-color: #d6d3e5;
+      background: #fafaff;
+    }
+
+    .btn-danger {
+      border-color: #f5c6d0;
+      background: #fff0f3;
+      color: #d54d68;
+    }
+
+    .btn-danger:hover {
+      border-color: #ef9caf;
+      background: #ffe7ec;
+    }
+
+    .icon-btn {
+      width: 36px;
+      min-width: 36px;
+      padding: 0;
+      border-radius: 50%;
+    }
+
+    .icon-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .dialog {
+      width: min(580px, calc(100vw - 22px));
+      max-height: calc(100vh - 32px);
+      overflow: hidden;
+      padding: 0;
+      border: 1px solid #e9e7f1;
+      border-radius: var(--radius-large);
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 24px 70px rgba(55, 51, 90, 0.24);
+    }
+
+    .dialog::backdrop {
+      background: rgba(54, 51, 82, 0.3);
+      backdrop-filter: blur(3px);
+    }
+
+    .dialog-inner {
+      display: flex;
+      max-height: calc(100vh - 32px);
+      flex-direction: column;
+      padding: 20px 22px 22px;
+    }
+
+    .dialog-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .dialog-title {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.2;
+    }
+
+    .dialog-sub {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .form-scroll {
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 13px;
+    }
+
+    .field {
+      display: block;
+      min-width: 0;
+    }
+
+    .field-wide {
+      grid-column: 1 / -1;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 6px;
+      color: #6c6a83;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      height: 38px;
+      padding: 0 10px;
+      border: 1px solid #dedceb;
+      border-radius: 14px;
+      outline: none;
+      background: #fff;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .field select {
+      appearance: auto;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: #9f95ed;
+      box-shadow: 0 0 0 3px rgba(139, 129, 235, 0.15);
+    }
+
+    .color-field {
+      padding: 0;
+      border: 0;
+      margin: 0;
+    }
+
+    .color-field legend {
+      margin-bottom: 8px;
+      padding: 0;
+      color: #6c6a83;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 11px;
+    }
+
+    .mood-field {
+      grid-column: 1 / -1;
+    }
+
+    .mood-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mood-btn {
+      display: inline-flex;
+      width: 44px;
+      height: 44px;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 1px solid #e3e1ed;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+      font-size: 20px;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .mood-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: #fff8fa;
+      transform: translateY(-1px);
+    }
+
+    .mood-btn.is-selected {
+      border-color: var(--accent);
+      background: #fff0f4;
+      box-shadow: 0 0 0 3px rgba(242, 158, 179, 0.16);
+    }
+
+    .mood-btn:disabled {
+      opacity: 0.42;
+      cursor: default;
+    }
+
+    .mood-hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .swatch {
+      position: relative;
+      display: block;
+      cursor: pointer;
+    }
+
+    .swatch input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .swatch-dot {
+      display: block;
+      width: 27px;
+      height: 27px;
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px rgba(75, 72, 109, 0.16);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .swatch input:checked + .swatch-dot {
+      box-shadow: 0 0 0 2px #56536d, 0 0 0 4px #fff;
+      transform: scale(1.05);
+    }
+
+    .swatch:hover .swatch-dot {
+      transform: scale(1.08);
+    }
+
+    .sw-mint .swatch-dot {
+      background: #9edcb9;
+    }
+
+    .sw-peach .swatch-dot {
+      background: #f9b98f;
+    }
+
+    .sw-sky .swatch-dot {
+      background: #9acdf3;
+    }
+
+    .sw-lemon .swatch-dot {
+      background: #f1d56e;
+    }
+
+    .sw-lilac .swatch-dot {
+      background: #b8a5ed;
+    }
+
+    .sw-rose .swatch-dot {
+      background: #f39bb7;
+    }
+
+    .form-error {
+      display: none;
+      margin: 13px 0 0;
+      padding: 9px 11px;
+      border-radius: var(--radius-small);
+      background: #fff0f2;
+      color: #c94661;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .form-error.visible {
+      display: block;
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 18px;
+    }
+
+    .form-actions .spacer {
+      flex: 1;
+    }
+
+    .import-dialog {
+      width: min(820px, calc(100vw - 22px));
+    }
+
+    .dropzone {
+      display: grid;
+      min-height: 148px;
+      place-items: center;
+      padding: 18px;
+      border: 1.5px dashed #d3d0e5;
+      border-radius: 22px;
+      background: #fbfaff;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .dropzone:hover,
+    .dropzone.is-dragover {
+      border-color: var(--accent);
+      background: #fff7f9;
+    }
+
+    .upload-icon {
+      display: grid;
+      width: 40px;
+      height: 40px;
+      margin-bottom: 10px;
+      place-items: center;
+      border-radius: 50%;
+      background: #fff0f4;
+      color: var(--accent-deep);
+    }
+
+    .upload-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .upload-title {
+      display: block;
+      color: #55536b;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .upload-types {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .import-state {
+      margin-top: 13px;
+      padding: 11px 13px;
+      border-left: 3px solid #85cfa6;
+      border-radius: var(--radius-small);
+      background: #f1faf5;
+      color: #47755b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .import-state b {
+      color: #2e6548;
+    }
+
+    .section-title {
+      margin: 16px 0 9px;
+      color: #55536b;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .mapping-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .map-field {
+      display: block;
+      min-width: 0;
+    }
+
+    .map-field span {
+      display: block;
+      margin-bottom: 5px;
+      color: #6c6a83;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .map-field select {
+      width: 100%;
+      height: 34px;
+      padding: 0 8px;
+      border: 1px solid #dedceb;
+      border-radius: 14px;
+      outline: none;
+      background: #fff;
+      color: var(--ink);
+      font-size: 12px;
+    }
+
+    .map-field select:focus {
+      border-color: #9f95ed;
+      box-shadow: 0 0 0 3px rgba(139, 129, 235, 0.15);
+    }
+
+    .import-mode {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .import-mode legend {
+      width: 100%;
+      margin-bottom: 7px;
+      padding: 0;
+      color: #6c6a83;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .mode-chip {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .mode-chip input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .mode-chip span {
+      display: inline-flex;
+      min-height: 32px;
+      align-items: center;
+      padding: 0 13px;
+      border: 1px solid #e0deeb;
+      border-radius: 14px;
+      background: #fff;
+      color: #67647e;
+      font-size: 12px;
+      font-weight: 700;
+      transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+    }
+
+    .mode-chip input:checked + span {
+      border-color: #f7a0b6;
+      background: #fff0f4;
+      color: #c94d6b;
+    }
+
+    .preview-box {
+      max-height: 250px;
+      overflow: auto;
+      border: 1px solid #e7e5ef;
+      border-radius: var(--radius-medium);
+      scrollbar-color: #d9d7e7 transparent;
+      scrollbar-width: thin;
+    }
+
+    .preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .preview-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      padding: 8px 10px;
+      border-bottom: 1px solid #e4e2ee;
+      background: #fbfaff;
+      color: #747188;
+      font-weight: 700;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .preview-table td {
+      max-width: 260px;
+      padding: 7px 10px;
+      border-bottom: 1px solid #f0eef6;
+      overflow: hidden;
+      color: #55536b;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .preview-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .preview-table .preview-day {
+      color: #95542e;
+      font-weight: 700;
+    }
+
+    .preview-table .preview-time {
+      color: #3e7d8c;
+      font-variant-numeric: tabular-nums;
+    }
+
+    body.has-custom-bg {
+      background-position: center;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+
+    body.has-custom-bg::before {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: rgba(255, 255, 255, 0.2);
+      content: "";
+      pointer-events: none;
+    }
+
+    .schedule-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid rgba(230, 228, 240, 0.9);
+      background: rgba(255, 255, 255, 0.56);
+      backdrop-filter: blur(12px);
+    }
+
+    .view-tabs {
+      display: inline-flex;
+      gap: 3px;
+      padding: 3px;
+      border-radius: 16px;
+      background: rgba(236, 234, 246, 0.8);
+    }
+
+    .view-tab {
+      padding: 7px 14px;
+      border: 0;
+      border-radius: 13px;
+      background: transparent;
+      color: #6f6c86;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .view-tab.is-active {
+      background: rgba(255, 255, 255, 0.96);
+      color: #4d4a68;
+      box-shadow: 0 3px 10px rgba(74, 70, 110, 0.12);
+    }
+
+    .has-custom-bg .schedule-panel {
+      background: rgba(255, 255, 255, 0.38);
+      border-color: rgba(255, 255, 255, 0.58);
+      box-shadow: 0 12px 36px rgba(60, 56, 95, 0.14);
+    }
+
+    .has-custom-bg .schedule-panel-head,
+    .has-custom-bg .day-header-row {
+      background: rgba(255, 255, 255, 0.44);
+      border-bottom-color: rgba(255, 255, 255, 0.58);
+    }
+
+    .has-custom-bg .day-head,
+    .has-custom-bg .corner-cell,
+    .has-custom-bg .time-axis {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.36);
+    }
+
+    .has-custom-bg .day-head.is-today {
+      background: rgba(255, 241, 201, 0.42);
+    }
+
+    .has-custom-bg .day-column {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .has-custom-bg .day-column.is-today {
+      background: rgba(255, 245, 218, 0.26);
+    }
+
+    .course-card {
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+    }
+
+    .agenda-view {
+      padding: 16px clamp(12px, 2vw, 22px) 26px;
+    }
+
+    .agenda-days {
+      position: sticky;
+      top: 0;
+      z-index: 7;
+      display: flex;
+      gap: 8px;
+      margin: -2px -2px 16px;
+      padding: 8px 2px 10px;
+      overflow-x: auto;
+      border-radius: var(--radius-medium);
+      background: rgba(255, 255, 255, 0.58);
+      scrollbar-width: none;
+      backdrop-filter: blur(10px);
+    }
+
+    .agenda-days::-webkit-scrollbar {
+      display: none;
+    }
+
+    .agenda-day {
+      display: flex;
+      flex: 0 0 auto;
+      min-width: 76px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 8px 12px;
+      border: 1px solid rgba(223, 221, 237, 0.86);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.58);
+      color: #66647d;
+      cursor: pointer;
+    }
+
+    .agenda-day b {
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .agenda-day small {
+      color: #9997ad;
+      font-size: 10px;
+    }
+
+    .agenda-day.is-today {
+      border-color: #ffcfdb;
+      background: #fff1f4;
+      color: #d64e6e;
+    }
+
+    .agenda-day.is-active {
+      border-color: #9e94df;
+      background: rgba(243, 240, 255, 0.92);
+      color: #5a4cbd;
+      box-shadow: 0 4px 12px rgba(108, 93, 211, 0.18);
+    }
+
+    .heatmap-view {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px clamp(12px, 2vw, 22px) 26px;
+    }
+
+    .heatmap-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .heatmap-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .heatmap-range {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .heatmap-scroll {
+      min-width: 0;
+      overflow: auto;
+      padding-bottom: 6px;
+      scrollbar-color: #d9d7e7 transparent;
+      scrollbar-width: thin;
+    }
+
+    .heatmap-grid {
+      display: grid;
+      gap: 10px;
+      min-width: 720px;
+    }
+
+    .heatmap-month {
+      padding: 12px;
+      border: 1px solid rgba(227, 225, 237, 0.9);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.64);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .heatmap-month-name {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .heatmap-weekdays,
+    .heatmap-days {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .heatmap-weekdays {
+      margin-bottom: 6px;
+    }
+
+    .heatmap-weekday {
+      color: var(--muted);
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .heatmap-day {
+      min-height: 48px;
+      padding: 6px;
+      border-radius: 14px;
+      font-size: 11px;
+      line-height: 1.2;
+      box-shadow: inset 0 0 0 1px rgba(80, 76, 108, 0.03);
+    }
+
+    .heatmap-day b {
+      display: block;
+      font-size: 12px;
+    }
+
+    .heatmap-day small {
+      color: rgba(56, 58, 72, 0.7);
+    }
+
+    .heatmap-day.is-today {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    .heatmap-day.empty {
+      background: rgba(255, 255, 255, 0.38);
+      box-shadow: none;
+    }
+
+    .load-0 {
+      background: #f5f6fa;
+    }
+
+    .load-1 {
+      background: #e2f3df;
+    }
+
+    .load-2 {
+      background: #fff0c9;
+    }
+
+    .load-3 {
+      background: #ffd3ae;
+    }
+
+    .load-4 {
+      background: #ff9db0;
+    }
+
+    .heatmap-legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-chip span {
+      display: block;
+      width: 16px;
+      height: 16px;
+      border-radius: 6px;
+      box-shadow: inset 0 0 0 1px rgba(80, 76, 108, 0.06);
+    }
+
+    .has-custom-bg .heatmap-month {
+      background: rgba(255, 255, 255, 0.36);
+      border-color: rgba(255, 255, 255, 0.44);
+    }
+
+    .compare-view {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px clamp(12px, 2vw, 22px) 26px;
+    }
+
+    .compare-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .compare-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .compare-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .compare-stat {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      gap: 5px;
+      padding: 10px 12px;
+      border: 1px solid rgba(227, 225, 237, 0.9);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.64);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .compare-stat b {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .compare-stat span {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .has-custom-bg .compare-stat {
+      background: rgba(255, 255, 255, 0.36);
+      border-color: rgba(255, 255, 255, 0.44);
+    }
+
+    .compare-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .free-slot {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid rgba(223, 221, 237, 0.86);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.64);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 5px 14px rgba(65, 61, 98, 0.06);
+    }
+
+    .free-slot-day {
+      flex: 0 0 58px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .free-slot-time {
+      flex: 1;
+      min-width: 0;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .free-slot-duration {
+      flex: 0 0 auto;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #eef3ff;
+      color: #5264c9;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .compare-empty {
+      margin: 0;
+      padding: 18px;
+      border: 1px dashed #d3d0e5;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.5);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .has-custom-bg .compare-empty {
+      background: rgba(255, 255, 255, 0.36);
+      border-color: rgba(255, 255, 255, 0.44);
+    }
+
+    @media (max-width: 560px) {
+      .compare-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .free-slot {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .free-slot-duration {
+        align-self: flex-start;
+      }
+    }
+
+    .day-timeline {
+      position: relative;
+      display: flex;
+      height: 840px;
+      min-height: 840px;
+      overflow: hidden;
+      border: 1px solid rgba(227, 225, 237, 0.75);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.3);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+
+    .timeline-axis {
+      position: relative;
+      flex: 0 0 72px;
+      height: 840px;
+      border-right: 1px solid rgba(218, 215, 231, 0.9);
+      background: rgba(255, 255, 255, 0.66);
+    }
+
+    .timeline-time {
+      position: absolute;
+      right: 10px;
+      color: #7e7b94;
+      font-size: 10px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .timeline-track {
+      position: relative;
+      flex: 1;
+      height: 840px;
+      min-width: 0;
+      overflow: hidden;
+      background-image:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0 59px,
+          rgba(104, 102, 138, 0.13) 59px 60px
+        ),
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0 29px,
+          rgba(104, 102, 138, 0.05) 29px 30px
+        );
+    }
+
+    .timeline-course {
+      position: absolute;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      overflow: hidden;
+      padding: 9px 13px;
+      border: 1px solid;
+      border-radius: 18px;
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(65, 61, 98, 0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .timeline-course:hover {
+      z-index: 5;
+      transform: translateX(2px);
+      box-shadow: 0 8px 18px rgba(65, 61, 98, 0.16);
+    }
+
+    .timeline-course .course-time {
+      max-width: 100%;
+      font-size: 11px;
+    }
+
+    .timeline-course .course-title {
+      margin-top: 5px;
+      font-size: 15px;
+      -webkit-line-clamp: 3;
+    }
+
+    .timeline-course .course-meta {
+      font-size: 11px;
+    }
+
+    .timeline-now {
+      position: absolute;
+      left: 0;
+      right: 0;
+      z-index: 4;
+      height: 2px;
+      background: #f27e9d;
+      pointer-events: none;
+    }
+
+    .timeline-now::before {
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      width: 10px;
+      height: 10px;
+      border: 2px solid #f27e9d;
+      border-radius: 50%;
+      background: #fff;
+      content: "";
+    }
+
+    .timeline-empty {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #8e8ba3;
+      font-size: 13px;
+    }
+
+    .has-custom-bg .day-timeline {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.44);
+    }
+
+    .has-custom-bg .timeline-axis {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .background-presets {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .bg-option {
+      display: flex;
+      min-height: 86px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 6px;
+      border: 1px solid #e3e1ed;
+      border-radius: 18px;
+      background: #fff;
+      color: #6b6882;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .bg-option span {
+      width: 36px;
+      height: 36px;
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px rgba(76, 72, 111, 0.18);
+    }
+
+    .bg-option.is-selected {
+      border-color: #f39bb1;
+      background: #fff3f6;
+      color: #c94d6b;
+      box-shadow: 0 0 0 2px rgba(255, 127, 158, 0.14);
+    }
+
+    .background-upload {
+      display: flex;
+      min-height: 74px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      margin-top: 14px;
+      border: 1.5px dashed #d2cfe4;
+      border-radius: 18px;
+      background: #fbfaff;
+      color: #6d6a86;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .background-upload:hover {
+      border-color: #f39bb1;
+      background: #fff5f8;
+    }
+
+    .background-upload svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        padding-top: 14px;
+      }
+
+      .topbar {
+        padding-bottom: 12px;
+      }
+
+      .brand-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .brand h1 {
+        font-size: 19px;
+      }
+
+      .week-summary {
+        display: none;
+      }
+
+      .top-actions {
+        width: 100%;
+      }
+
+      .top-actions .btn {
+        flex: 1;
+      }
+
+      .top-actions .btn-primary {
+        margin-left: 0;
+      }
+
+      .schedule-panel {
+        border-radius: 20px;
+      }
+
+      .timeline-axis {
+        flex-basis: 58px;
+      }
+
+      .timeline-course {
+        padding: 7px 9px;
+      }
+
+      .timeline-course .course-title {
+        font-size: 13px;
+      }
+
+      .timeline-course .course-meta {
+        font-size: 10px;
+      }
+
+      .background-presets {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .schedule-scroll {
+        max-height: calc(100vh - 188px);
+      }
+
+      .fields {
+        grid-template-columns: 1fr;
+      }
+
+      .mapping-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .field-wide {
+        grid-column: auto;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .mapping-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-chip {
+        flex: 1;
+      }
+
+      .mode-chip span {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <path d="M32 7C43 15 54 32 58 48H6C10 32 21 15 32 7Z" fill="#cdefa4"></path>
+            <path d="M32 7C43 15 54 32 58 48H6C10 32 21 15 32 7Z" fill="none" stroke="#58a04e" stroke-width="3" stroke-linejoin="round"></path>
+            <path d="M32 7L12 48M32 7L52 48" stroke="#94c966" stroke-width="3" stroke-linecap="round" opacity="0.75"></path>
+            <path d="M6 48C17 58 47 58 58 48L54 56C43 63 21 63 10 56Z" fill="#63a84e"></path>
+            <path d="M6 48C17 58 47 58 58 48" fill="none" stroke="#7fb75d" stroke-width="2" stroke-linecap="round"></path>
+            <circle cx="24" cy="30" r="6" fill="#28491f"></circle>
+            <circle cx="40" cy="30" r="6" fill="#28491f"></circle>
+            <circle cx="26" cy="28" r="2" fill="#ffffff"></circle>
+            <circle cx="42" cy="28" r="2" fill="#ffffff"></circle>
+            <ellipse cx="17" cy="37" rx="4.5" ry="3" fill="#ffc5d3" opacity="0.95"></ellipse>
+            <ellipse cx="47" cy="37" rx="4.5" ry="3" fill="#ffc5d3" opacity="0.95"></ellipse>
+            <path d="M27 38Q32 45 37 38" fill="none" stroke="#28491f" stroke-width="2.6" stroke-linecap="round"></path>
+            <path d="M21 25Q32 20 43 25" fill="none" stroke="#f6efd1" stroke-width="3.5" stroke-linecap="round"></path>
+          </svg>
+        </span>
+        <div>
+          <h1>粽子课表</h1>
+          <p class="today-caption" id="todayCaption"></p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="week-summary" aria-label="课表概览">
+          <div class="summary-item"><span>本周课程</span><b id="courseCount">0</b><span>门</span></div>
+          <div class="summary-item"><span>今日</span><b id="todayCount">0</b><span>节</span></div>
+          <div class="summary-item"><span>今日打卡</span><b id="todayDoneCount">0</b><span>/ <b id="todayTotalCount">0</b> 节</span></div>
+        </div>
+        <button class="btn btn-ghost icon-btn" id="commuteSettingsBtn" type="button" title="通勤设置" aria-label="通勤设置">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 10c0 4.7-8 11-8 11s-8-6.3-8-11a8 8 0 0 1 16 0Z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </button>
+        <button class="btn btn-ghost" id="importBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <path d="m7 8 5-5 5 5"></path>
+            <path d="M12 3v12"></path>
+          </svg>
+          导入
+        </button>
+        <button class="btn btn-primary" id="addBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14"></path>
+            <path d="M12 5v14"></path>
+          </svg>
+          添加课程
+        </button>
+      </div>
+    </header>
+
+    <section class="commute-banner" id="commuteBar" aria-label="课前通勤倒计时" hidden>
+      <div class="commute-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"></path>
+        </svg>
+      </div>
+      <div class="commute-copy">
+        <strong class="commute-title" id="commuteTitle">下一门课</strong>
+        <span class="commute-detail" id="commuteDetail"></span>
+      </div>
+      <div class="commute-meta">
+        <span class="commute-countdown" id="commuteCountdown"></span>
+        <span class="commute-depart" id="commuteDepart"></span>
+      </div>
+    </section>
+
+    <section class="schedule-panel" aria-label="课表">
+      <div class="schedule-panel-head">
+        <div class="view-tabs" role="group" aria-label="课表视图">
+          <button class="view-tab is-active" type="button" data-schedule-view="time">时间条</button>
+          <button class="view-tab" type="button" data-schedule-view="grid">周课表</button>
+          <button class="view-tab" type="button" data-schedule-view="heatmap">热力图</button>
+          <button class="view-tab" type="button" data-schedule-view="compare">拼表</button>
+        </div>
+        <button class="btn btn-ghost icon-btn" id="backgroundBtn" type="button" title="自定义背景" aria-label="自定义背景">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <circle cx="9" cy="9" r="2"></circle>
+            <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="schedule-scroll">
+        <div id="gridView">
+          <div class="day-header-row" id="dayHeaderRow"></div>
+          <div class="schedule-body" id="scheduleBody"></div>
+        </div>
+        <div class="agenda-view" id="agendaView" hidden>
+          <div class="agenda-days" id="agendaDays"></div>
+          <div class="day-timeline" id="dayTimeline">
+            <div class="timeline-axis" id="timelineAxis"></div>
+            <div class="timeline-track" id="timelineTrack"></div>
+          </div>
+        </div>
+        <div class="heatmap-view" id="heatmapView" hidden>
+          <div class="heatmap-head">
+            <div>
+              <h3 class="heatmap-title">学期课程热力图</h3>
+              <p class="heatmap-range" id="heatmapRange"></p>
+            </div>
+            <button class="btn btn-ghost" id="saveHeatmapBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <path d="M7 10l5 5 5-5"></path>
+                <path d="M12 15V3"></path>
+              </svg>
+              保存图片
+            </button>
+          </div>
+          <div class="heatmap-scroll">
+            <div class="heatmap-grid" id="heatmapGrid"></div>
+          </div>
+          <div class="heatmap-legend" id="heatmapLegend"></div>
+        </div>
+        <div class="compare-view" id="compareView" hidden>
+          <div class="compare-head">
+            <div>
+              <h3 class="heatmap-title">课表拼表 · 自动对比</h3>
+              <p id="compareSummary" class="heatmap-range"></p>
+            </div>
+            <div class="compare-actions">
+              <button class="btn btn-ghost" id="importFriendBtn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <path d="m7 10 5 5 5-5"></path>
+                  <path d="M12 15V3"></path>
+                </svg>
+                导入同学课表
+              </button>
+              <button class="btn btn-primary" id="compareNowBtn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                一键找空闲
+              </button>
+              <button class="btn btn-ghost" id="clearFriendBtn" type="button">清空同学课表</button>
+            </div>
+          </div>
+          <div class="compare-stats" id="compareStats"></div>
+          <div class="compare-list" id="compareList"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="dialog" id="courseDialog">
+    <form class="dialog-inner" id="courseForm" novalidate>
+      <div class="dialog-head">
+        <div>
+          <h2 class="dialog-title" id="dialogTitle">添加课程</h2>
+          <p class="dialog-sub" id="dialogSub"></p>
+        </div>
+        <button class="btn btn-ghost icon-btn" type="button" data-close-dialog aria-label="关闭">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="form-scroll">
+        <div class="fields">
+          <label class="field field-wide">
+            <span class="field-label">课程名称</span>
+            <input id="nameInput" name="name" maxlength="24" autocomplete="off">
+          </label>
+
+          <label class="field">
+            <span class="field-label">星期</span>
+            <select id="daySelect"></select>
+          </label>
+
+          <label class="field">
+            <span class="field-label">开课周</span>
+            <select id="weekRuleSelect">
+              <option value="all">每周</option>
+              <option value="odd">单周</option>
+              <option value="even">双周</option>
+              <option value="range3to12">第3-12周</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field-label">课程标签</span>
+            <select id="tagSelect">
+              <option value="">无</option>
+              <option value="easy">水课</option>
+              <option value="hard">硬核专业课</option>
+              <option value="lab">实验课</option>
+            </select>
+          </label>
+
+          <fieldset class="field color-field">
+            <legend class="field-label">颜色</legend>
+            <div class="swatches" id="colorSwatches"></div>
+          </fieldset>
+
+          <fieldset class="field color-field mood-field">
+            <legend class="field-label">课程心情打卡</legend>
+            <div class="mood-options" id="moodOptions">
+              <button class="mood-btn" type="button" data-mood="happy" title="开心" aria-label="开心">😄</button>
+              <button class="mood-btn" type="button" data-mood="neutral" title="一般" aria-label="一般">🙂</button>
+              <button class="mood-btn" type="button" data-mood="sleepy" title="困" aria-label="困">😪</button>
+              <button class="mood-btn" type="button" data-mood="fired" title="冲" aria-label="冲">💪</button>
+              <button class="mood-btn" type="button" data-mood="tired" title="累" aria-label="累">😫</button>
+            </div>
+            <p class="mood-hint" id="moodHint"></p>
+          </fieldset>
+
+          <label class="field">
+            <span class="field-label">上课时间</span>
+            <select id="startSelect"></select>
+          </label>
+
+          <label class="field">
+            <span class="field-label">下课时间</span>
+            <select id="endSelect"></select>
+          </label>
+
+          <label class="field">
+            <span class="field-label">地点</span>
+            <input id="placeInput" name="place" maxlength="30" autocomplete="off">
+          </label>
+
+          <label class="field">
+            <span class="field-label">老师</span>
+            <input id="teacherInput" name="teacher" maxlength="20" autocomplete="off">
+          </label>
+        </div>
+
+        <p class="form-error" id="formError"></p>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-danger" id="deleteBtn" type="button" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 6h18"></path>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          删除
+        </button>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" type="button" data-close-dialog>取消</button>
+        <button class="btn btn-primary" type="submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 6 9 17l-5-5"></path>
+          </svg>
+          保存
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog import-dialog" id="importDialog">
+    <div class="dialog-inner">
+      <div class="dialog-head">
+        <div>
+          <h2 class="dialog-title">导入课表</h2>
+          <p class="dialog-sub" id="importFileHint"></p>
+        </div>
+        <button class="btn btn-ghost icon-btn" type="button" data-close-import aria-label="关闭">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="form-scroll">
+        <input id="fileInput" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.pdf" hidden>
+        <label class="dropzone" id="dropzone" for="fileInput">
+          <span>
+            <span class="upload-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <path d="m7 8 5-5 5 5"></path>
+                <path d="M12 3v12"></path>
+              </svg>
+            </span>
+            <span class="upload-title">选择或拖入课表文件</span>
+            <span class="upload-types">.xlsx .xls .csv .tsv .pdf</span>
+          </span>
+        </label>
+
+        <p class="form-error" id="importError"></p>
+        <div class="import-state" id="importState" hidden></div>
+
+        <div class="mapping-area" id="mappingArea" hidden>
+          <div class="section-title">列设置</div>
+          <div class="mapping-grid">
+            <label class="map-field">
+              <span>课程名称</span>
+              <select id="mapCourse"></select>
+            </label>
+            <label class="map-field">
+              <span>星期</span>
+              <select id="mapDay"></select>
+            </label>
+            <label class="map-field">
+              <span>上课时间 / 节次</span>
+              <select id="mapStart"></select>
+            </label>
+            <label class="map-field">
+              <span>下课时间</span>
+              <select id="mapEnd"></select>
+            </label>
+            <label class="map-field">
+              <span>地点</span>
+              <select id="mapPlace"></select>
+            </label>
+            <label class="map-field">
+              <span>老师</span>
+              <select id="mapTeacher"></select>
+            </label>
+          </div>
+        </div>
+
+        <div id="previewArea" hidden>
+          <div class="section-title" id="previewTitle">识别预览</div>
+          <div class="preview-box">
+            <table class="preview-table">
+              <thead>
+                <tr>
+                  <th>星期</th>
+                  <th>时间</th>
+                  <th>课程</th>
+                  <th>地点</th>
+                  <th>老师</th>
+                </tr>
+              </thead>
+              <tbody id="previewBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <fieldset class="import-mode" id="importMode" hidden>
+          <legend id="importModeLegend">加入方式</legend>
+          <label class="mode-chip">
+            <input type="radio" name="importMode" value="replace" checked>
+            <span id="replaceModeLabel">替换当前课表</span>
+          </label>
+          <label class="mode-chip">
+            <input type="radio" name="importMode" value="merge">
+            <span id="mergeModeLabel">追加到现有课表</span>
+          </label>
+        </fieldset>
+      </div>
+
+      <div class="form-actions">
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" type="button" data-close-import>取消</button>
+        <button class="btn btn-primary" id="confirmImport" type="button" hidden>确认导入</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="dialog" id="commuteDialog">
+    <div class="dialog-inner">
+      <div class="dialog-head">
+        <div>
+          <h2 class="dialog-title">课前通勤</h2>
+          <p class="dialog-sub">记录出发点，并按教学楼设置步行时间</p>
+        </div>
+        <button class="btn btn-ghost icon-btn" type="button" data-close-commute aria-label="关闭">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="form-scroll">
+        <label class="field field-wide">
+          <span class="field-label">我的出发点</span>
+          <input id="commuteOriginInput" maxlength="30" autocomplete="off" placeholder="例如：宿舍 / 家 / 图书馆">
+        </label>
+
+        <label class="field">
+          <span class="field-label">默认步行时间</span>
+          <input id="commuteDefaultInput" type="number" min="1" max="120" step="1">
+        </label>
+
+        <label class="field">
+          <span class="field-label">浏览器提前提醒</span>
+          <select id="commuteNotifySelect">
+            <option value="off">关闭</option>
+            <option value="on">开启</option>
+          </select>
+        </label>
+
+        <div class="section-title">教学楼从出发点的步行时间</div>
+        <div class="commute-route-list" id="commuteRouteList"></div>
+
+        <p class="form-error" id="commuteError"></p>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-danger" id="resetCommuteBtn" type="button">重置默认</button>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" type="button" data-close-commute>取消</button>
+        <button class="btn btn-primary" id="saveCommuteBtn" type="button">保存</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="dialog" id="backgroundDialog">
+    <div class="dialog-inner">
+      <div class="dialog-head">
+        <div>
+          <h2 class="dialog-title">自定义背景</h2>
+          <p class="dialog-sub"></p>
+        </div>
+        <button class="btn btn-ghost icon-btn" type="button" data-close-background aria-label="关闭">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="form-scroll">
+        <div class="section-title">背景颜色</div>
+        <div class="background-presets" id="backgroundPresets"></div>
+
+        <div class="section-title">背景图片</div>
+        <input id="backgroundFile" type="file" accept="image/*" hidden>
+        <label class="background-upload" id="backgroundUpload" for="backgroundFile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <circle cx="9" cy="9" r="2"></circle>
+            <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"></path>
+          </svg>
+          选择本地图片
+        </label>
+        <p class="form-error" id="backgroundError"></p>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-danger" id="resetBackgroundBtn" type="button">恢复默认</button>
+        <span class="spacer"></span>
+        <button class="btn btn-ghost" type="button" data-close-background>完成</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const WEEKDAYS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+      const DAY_COLORS = ["mint", "peach", "sky", "lemon", "lilac", "rose"];
+      const DAY_COLOR_LABELS = {
+        mint: "薄荷",
+        peach: "蜜桃",
+        sky: "晴空",
+        lemon: "柠檬",
+        lilac: "香芋",
+        rose: "蔷薇"
+      };
+      const MOODS = [
+        { value: "happy", emoji: "😄", label: "开心" },
+        { value: "neutral", emoji: "🙂", label: "一般" },
+        { value: "sleepy", emoji: "😪", label: "困" },
+        { value: "fired", emoji: "💪", label: "冲" },
+        { value: "tired", emoji: "😫", label: "累" }
+      ];
+      const MOOD_BY_VALUE = Object.fromEntries(MOODS.map((mood) => [mood.value, mood]));
+      const COURSE_TAGS = [
+        { value: "", label: "无标签" },
+        { value: "easy", label: "水课" },
+        { value: "hard", label: "硬核专业课" },
+        { value: "lab", label: "实验课" }
+      ];
+      const TAG_BY_VALUE = Object.fromEntries(COURSE_TAGS.map((tag) => [tag.value, tag]));
+      const STORAGE_KEY = "cute-schedule-v2";
+      const FRIEND_STORAGE_KEY = "cute-schedule-friend-v1";
+      const ATTENDANCE_KEY = "cute-schedule-attendance-v1";
+      const VIEW_KEY = "cute-schedule-view-v1";
+      const BACKGROUND_KEY = "cute-schedule-bg-v1";
+      const COMMUTE_KEY = "cute-schedule-commute-v1";
+      const BG_PRESETS = [
+        { value: "default", label: "默认", preview: "#f7f8fd" },
+        { value: "mint", label: "薄荷", preview: "linear-gradient(160deg,#f2fff7,#dff4e8,#f8f2ff)" },
+        { value: "sky", label: "晴蓝", preview: "linear-gradient(160deg,#f4f9ff,#dff0ff,#fff3f8)" },
+        { value: "peach", label: "蜜桃", preview: "linear-gradient(160deg,#fff9ed,#ffe7df,#ffeef5)" },
+        { value: "lilac", label: "香芋", preview: "linear-gradient(160deg,#f8f5ff,#eae2ff,#fff5e9)" }
+      ];
+      const START_HOUR = 8;
+      const END_HOUR = 22;
+      const MIN_DURATION = 45;
+      const SEMESTER_START = new Date(2026, 8, 7);
+      const SEMESTER_END = new Date(2027, 0, 31);
+      const WEEKDAY_NAMES = ["一", "二", "三", "四", "五", "六", "日"];
+      const LOAD_LEVELS = [
+        { max: 0, className: "load-0", label: "无课", color: "#f5f6fa" },
+        { max: 60, className: "load-1", label: "悠闲", color: "#e2f3df" },
+        { max: 180, className: "load-2", label: "轻松", color: "#fff0c9" },
+        { max: 360, className: "load-3", label: "较满", color: "#ffd3ae" },
+        { max: Infinity, className: "load-4", label: "满满", color: "#ff9db0" }
+      ];
+
+      const seedCourses = [];
+
+      const $ = (selector) => document.querySelector(selector);
+      const form = $("#courseForm");
+      const dialog = $("#courseDialog");
+      const dialogTitle = $("#dialogTitle");
+      const dialogSub = $("#dialogSub");
+      const nameInput = $("#nameInput");
+      const daySelect = $("#daySelect");
+      const weekRuleSelect = $("#weekRuleSelect");
+      const tagSelect = $("#tagSelect");
+      const startSelect = $("#startSelect");
+      const endSelect = $("#endSelect");
+      const placeInput = $("#placeInput");
+      const teacherInput = $("#teacherInput");
+      const colorSwatches = $("#colorSwatches");
+      const moodOptions = $("#moodOptions");
+      const moodHint = $("#moodHint");
+      const deleteBtn = $("#deleteBtn");
+      const formError = $("#formError");
+
+      const importDialog = $("#importDialog");
+      const fileInput = $("#fileInput");
+      const dropzone = $("#dropzone");
+      const importError = $("#importError");
+      const importState = $("#importState");
+      const mappingArea = $("#mappingArea");
+      const previewArea = $("#previewArea");
+      const previewBody = $("#previewBody");
+      const importMode = $("#importMode");
+      const importModeLegend = $("#importModeLegend");
+      const replaceModeLabel = $("#replaceModeLabel");
+      const mergeModeLabel = $("#mergeModeLabel");
+      const confirmImport = $("#confirmImport");
+      const importFileHint = $("#importFileHint");
+      const mappingSelects = {
+        course: $("#mapCourse"),
+        day: $("#mapDay"),
+        start: $("#mapStart"),
+        end: $("#mapEnd"),
+        place: $("#mapPlace"),
+        teacher: $("#mapTeacher")
+      };
+      const gridView = $("#gridView");
+      const agendaView = $("#agendaView");
+      const agendaDays = $("#agendaDays");
+      const dayTimeline = $("#dayTimeline");
+      const timelineAxis = $("#timelineAxis");
+      const timelineTrack = $("#timelineTrack");
+      const heatmapView = $("#heatmapView");
+      const heatmapGrid = $("#heatmapGrid");
+      const heatmapRange = $("#heatmapRange");
+      const heatmapLegend = $("#heatmapLegend");
+      const saveHeatmapBtn = $("#saveHeatmapBtn");
+      const compareView = $("#compareView");
+      const compareSummary = $("#compareSummary");
+      const compareStats = $("#compareStats");
+      const compareList = $("#compareList");
+      const compareNowBtn = $("#compareNowBtn");
+      const commuteBar = $("#commuteBar");
+      const commuteTitle = $("#commuteTitle");
+      const commuteDetail = $("#commuteDetail");
+      const commuteCountdown = $("#commuteCountdown");
+      const commuteDepart = $("#commuteDepart");
+      const commuteDialog = $("#commuteDialog");
+      const commuteOriginInput = $("#commuteOriginInput");
+      const commuteDefaultInput = $("#commuteDefaultInput");
+      const commuteNotifySelect = $("#commuteNotifySelect");
+      const commuteRouteList = $("#commuteRouteList");
+      const commuteError = $("#commuteError");
+      const backgroundDialog = $("#backgroundDialog");
+      const backgroundPresets = $("#backgroundPresets");
+      const backgroundFile = $("#backgroundFile");
+      const backgroundError = $("#backgroundError");
+
+      let courses = loadCourses();
+      let attendance = loadAttendance();
+      let viewMode = loadViewMode();
+      let agendaDay = todayIndex();
+      let backgroundSetting = loadBackground();
+      let commuteSetting = loadCommuteSetting();
+      let friendCourses = loadFriendCourses();
+      let lastCommuteReminderKey = "";
+      let editingId = null;
+      let importTarget = "mine";
+      let pendingCourses = [];
+      let importGrid = [];
+      let importHeaderIndex = -1;
+      let importDataRows = [];
+      let importMatrixInfo = null;
+      let importFileName = "";
+
+      function loadViewMode() {
+        const saved = localStorage.getItem(VIEW_KEY);
+        return saved === "grid" || saved === "time" || saved === "heatmap" || saved === "compare" ? saved : "time";
+      }
+
+      function loadBackground() {
+        try {
+          const saved = localStorage.getItem(BACKGROUND_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed && typeof parsed === "object" && (parsed.kind === "preset" || parsed.kind === "image")) {
+              return parsed;
+            }
+          }
+        } catch (error) {
+          console.warn("读取背景失败", error);
+        }
+        return { kind: "preset", value: "default" };
+      }
+
+      function saveBackground() {
+        localStorage.setItem(BACKGROUND_KEY, JSON.stringify(backgroundSetting));
+      }
+
+      function loadCommuteSetting() {
+        try {
+          const raw = localStorage.getItem(COMMUTE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === "object" && typeof parsed.origin === "string") {
+              const defaultMinutes = Math.min(120, Math.max(1, Number(parsed.defaultMinutes) || 10));
+              const routes = parsed.routes && typeof parsed.routes === "object" && !Array.isArray(parsed.routes)
+                ? parsed.routes
+                : {};
+              return { origin: parsed.origin, defaultMinutes, routes, notify: Boolean(parsed.notify) };
+            }
+          }
+        } catch (error) {
+          console.warn("读取通勤设置失败", error);
+        }
+        return { origin: "宿舍", defaultMinutes: 10, routes: {}, notify: false };
+      }
+
+      function saveCommuteSetting() {
+        localStorage.setItem(COMMUTE_KEY, JSON.stringify(commuteSetting));
+      }
+
+      function buildingKey(place) {
+        const text = String(place || "").trim();
+        if (!text) return "";
+        const compact = text.replace(/\s+/g, "");
+        const match = compact.match(/(.*?(?:栋|楼|堂|馆|区|座|部))/);
+        return match ? match[1] : compact.slice(0, 8);
+      }
+
+      function commuteMinutesFor(course) {
+        const key = buildingKey(course.place);
+        const routeValue = commuteSetting.routes[key];
+        const base = routeValue !== undefined && Number.isFinite(Number(routeValue)) ? Number(routeValue) : commuteSetting.defaultMinutes;
+        return Math.max(1, Math.min(120, Math.round(base)));
+      }
+
+      function departureMinutesFor(course) {
+        return timeToMinutes(course.start) - commuteMinutesFor(course);
+      }
+
+      function looksLikeOldDemo(courseList) {
+        if (!Array.isArray(courseList) || courseList.length !== 8) return false;
+        const oldDemoNames = ["高等数学", "大学英语", "程序设计基础", "离散数学", "数据结构", "大学物理", "操作系统", "形势与政策"];
+        return courseList.every((course, index) => course && course.name === oldDemoNames[index]);
+      }
+
+      function loadAttendance() {
+        try {
+          const raw = localStorage.getItem(ATTENDANCE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed;
+          }
+        } catch (error) {
+          console.warn("读取打卡记录失败", error);
+        }
+        return {};
+      }
+
+      function saveAttendance() {
+        localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(attendance));
+      }
+
+      function loadCourses() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              if (looksLikeOldDemo(parsed)) return seedCourses.map(cloneCourse).map(withId);
+              return parsed.map(withId);
+            }
+            return seedCourses.map(cloneCourse).map(withId);
+          }
+        } catch (error) {
+          console.warn("读取课表失败", error);
+        }
+        return seedCourses.map(cloneCourse).map(withId);
+      }
+
+      function cloneCourse(course) {
+        return { ...course };
+      }
+
+      function withId(course, index) {
+        if (!course.id) course.id = `seed-${index}`;
+        return course;
+      }
+
+      function saveCourses() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
+      }
+
+      function loadFriendCourses() {
+        try {
+          const raw = localStorage.getItem(FRIEND_STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed.map(withId);
+          }
+        } catch (error) {
+          console.warn("读取同学课表失败", error);
+        }
+        return [];
+      }
+
+      function saveFriendCourses() {
+        localStorage.setItem(FRIEND_STORAGE_KEY, JSON.stringify(friendCourses));
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function timeToMinutes(time) {
+        const [hour, minute] = time.split(":").map(Number);
+        return hour * 60 + minute;
+      }
+
+      function minutesToTime(minutes) {
+        const safe = Math.max(0, Math.min(minutes, 23 * 60 + 59));
+        const hour = Math.floor(safe / 60);
+        const minute = safe % 60;
+        return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      }
+
+      function addMinutes(time, amount) {
+        return minutesToTime(timeToMinutes(time) + amount);
+      }
+
+      function timeOptions(from, to, step) {
+        const options = [];
+        let current = timeToMinutes(from);
+        const last = timeToMinutes(to);
+        while (current <= last) {
+          const label = minutesToTime(current);
+          options.push(`<option value="${label}">${label}</option>`);
+          current += step;
+        }
+        return options.join("");
+      }
+
+      function cellText(value) {
+        if (value === null || value === undefined) return "";
+        if (typeof value !== "string") return String(value).trim();
+        return value.replace(/\u00a0/g, " ").trim();
+      }
+
+      function detectDelimiter(text) {
+        const sample = text.slice(0, 6000).split(/\r?\n/).slice(0, 25).join("\n");
+        const counts = { ",": 0, "\t": 0, ";": 0 };
+        for (const char of sample) {
+          if (Object.prototype.hasOwnProperty.call(counts, char)) counts[char] += 1;
+        }
+        if (counts["\t"] > counts[","]) return "\t";
+        if (counts[";"] > counts[","] && counts[";"] >= 3) return ";";
+        return ",";
+      }
+
+      function parseDelimitedText(text, delimiter) {
+        const rows = [];
+        let row = [];
+        let field = "";
+        let quoted = false;
+        const cleanText = text.replace(/^\uFEFF/, "");
+        for (let index = 0; index < cleanText.length; index += 1) {
+          const char = cleanText[index];
+          if (quoted) {
+            if (char === '"') {
+              if (cleanText[index + 1] === '"') {
+                field += '"';
+                index += 1;
+              } else {
+                quoted = false;
+              }
+            } else {
+              field += char;
+            }
+          } else if (char === '"') {
+            quoted = true;
+          } else if (char === delimiter) {
+            row.push(field);
+            field = "";
+          } else if (char === "\n") {
+            row.push(field);
+            rows.push(row);
+            row = [];
+            field = "";
+          } else if (char !== "\r") {
+            field += char;
+          }
+        }
+        row.push(field);
+        rows.push(row);
+        return rows
+          .map((cells) => cells.map(cellText))
+          .filter((cells) => cells.some((cell) => cell !== ""));
+      }
+
+      function normalizeHeaderText(value) {
+        return String(value)
+          .toLowerCase()
+          .replace(/[\s_\-/\\（）()·:：]/g, "");
+      }
+
+      function parseWeekday(value, fromDayColumn) {
+        const raw = cellText(value);
+        if (!raw) return null;
+        if (fromDayColumn && /^[0-7]$/.test(raw)) {
+          return Number(raw) === 0 ? 0 : Number(raw) - 1;
+        }
+        const chineseMap = { 一: 0, 二: 1, 三: 2, 四: 3, 五: 4, 六: 5, 日: 6, 天: 6 };
+        const chineseMatch = raw.match(/(?:星期|周|礼拜)([一二三四五六日天])/);
+        if (chineseMatch) return chineseMap[chineseMatch[1]];
+        const englishMap = { mon: 0, tue: 1, wed: 2, thu: 3, fri: 4, sat: 5, sun: 6 };
+        const englishMatch = raw.toLowerCase().match(/\b(mon|tue|wed|thu|fri|sat|sun)\b/);
+        if (englishMatch) return englishMap[englishMatch[1]];
+        const dateMatch = raw.match(/(\d{4})[年/.-](\d{1,2})[月/.-](\d{1,2})/);
+        if (dateMatch) {
+          const date = new Date(Number(dateMatch[1]), Number(dateMatch[2]) - 1, Number(dateMatch[3]));
+          if (!Number.isNaN(date.getTime())) return (date.getDay() + 6) % 7;
+        }
+        return null;
+      }
+
+      function parseWeekdayFromText(value) {
+        const text = cellText(value);
+        if (!text) return null;
+        const direct = parseWeekday(text, false);
+        if (direct !== null) return direct;
+        const match = text.match(/(\d{4})[年/.-](\d{1,2})[月/.-](\d{1,2})/);
+        if (match) {
+          const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+          if (!Number.isNaN(date.getTime())) return (date.getDay() + 6) % 7;
+        }
+        return null;
+      }
+
+      function parseSingleClock(value) {
+        const text = cellText(value);
+        const match = text.match(/(?<!\d)(\d{1,2})[:：](\d{2})(?!\d)/);
+        if (!match) return null;
+        const hour = Number(match[1]);
+        const minute = Number(match[2]);
+        if (hour > 23 || minute > 59) return null;
+        return minutesToTime(hour * 60 + minute);
+      }
+
+      function parseTimeExpression(value) {
+        const text = cellText(value);
+        const matches = [...text.matchAll(/(?<!\d)(\d{1,2})[:：](\d{2})(?!\d)/g)];
+        if (matches.length >= 2) {
+          const firstMinutes = Number(matches[0][1]) * 60 + Number(matches[0][2]);
+          const lastMatch = matches[matches.length - 1];
+          const lastMinutes = Number(lastMatch[1]) * 60 + Number(lastMatch[2]);
+          if (lastMinutes > firstMinutes) {
+            return {
+              start: minutesToTime(firstMinutes),
+              end: minutesToTime(lastMinutes)
+            };
+          }
+        }
+        const only = parseSingleClock(text);
+        if (only) return { start: only, end: null };
+        return null;
+      }
+
+      const IMPORT_SLOT_STARTS = [480, 535, 600, 655, 840, 895, 960, 1015, 1140, 1195, 1260, 1320];
+
+      function parseSlotInfo(value) {
+        const compact = stripWeekNotes(value)
+          .replace(/第/g, " ")
+          .replace(/节/g, " ")
+          .replace(/[，、]/g, ",");
+        const pair = compact.match(/(?:\D|^)(\d{1,2})\s*[-—~至,]\s*(\d{1,2})(?:\D|$)/);
+        let first = null;
+        let last = null;
+        if (pair) {
+          first = Number(pair[1]);
+          last = Number(pair[2]);
+        } else {
+          const single = compact.match(/(?:\D|^)(\d{1,2})(?:\D|$)/);
+          if (single) {
+            first = Number(single[1]);
+            last = first;
+          }
+        }
+        if (!first || first < 1 || first > IMPORT_SLOT_STARTS.length) return null;
+        if (!last || last < first || last > IMPORT_SLOT_STARTS.length) return null;
+        const startMinutes = IMPORT_SLOT_STARTS[first - 1];
+        const endMinutes = Math.min(22 * 60, IMPORT_SLOT_STARTS[last - 1] + 45);
+        return { start: minutesToTime(startMinutes), end: minutesToTime(endMinutes) };
+      }
+
+      function stripWeekNotes(value) {
+        return cellText(value)
+          .replace(/[（(][^（）()]*周[^（）()]*[）)]/g, " ")
+          .replace(/[（(][单双]+[）)]/g, " ")
+          .replace(/\d+\s*[-—~至]?\s*\d*\s*周/g, " ")
+          .replace(/第\s*周/g, " ")
+          .replace(/第(?=\s*$)/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function stripClockRanges(value) {
+        return cellText(value)
+          .replace(/\d{1,2}[:：]\d{2}\s*[-—~至]\s*\d{1,2}[:：]\d{2}/g, " ")
+          .replace(/\d{1,2}[:：]\d{2}/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function looksLikePlace(token) {
+        return /(楼|室|馆|厅|机房|操场|实验室|线上|校区|教学楼)/.test(token) ||
+          /^[A-Za-z]?[\d-]{2,}$/.test(token);
+      }
+
+      function looksLikeTeacher(token) {
+        return /(老师|教师)/.test(token);
+      }
+
+      function metaHasSignal(meta) {
+        return /[@]|老师|教师|(楼|室|馆|厅|机房|操场|实验室|线上)|^[A-Za-z]?[\d-]{2,}$|，|,/.test(meta);
+      }
+
+      function parseCourseNameAndMeta(value) {
+        let text = stripWeekNotes(value);
+        text = text.replace(/^\d+\s*[.、）)]\s*/, "");
+        let name = text;
+        let metaText = "";
+        const atParts = text.split("@");
+        if (atParts.length > 1) {
+          name = atParts.shift().trim();
+          metaText = atParts.join("@");
+        } else {
+          const metaMatch = text.match(/^(.+?)[（(]([^（）()]+)[）)](.*)$/);
+          if (metaMatch && metaHasSignal(metaMatch[2])) {
+            name = metaMatch[1].trim();
+            metaText = `${metaMatch[2]} ${metaMatch[3] || ""}`.trim();
+          }
+        }
+        if (!metaText && /\s+/.test(text)) {
+          const parts = text.split(/\s+/).filter(Boolean);
+          const trailingMeta = [];
+          while (parts.length && (looksLikePlace(parts[parts.length - 1]) || looksLikeTeacher(parts[parts.length - 1]))) {
+            trailingMeta.unshift(parts.pop());
+          }
+          if (trailingMeta.length && parts.length) {
+            name = parts.join(" ");
+            metaText = trailingMeta.join(" ");
+          }
+        }
+
+        let place = "";
+        let teacher = "";
+        const tokens = metaText.split(/[@，,、\s]+/).filter(Boolean);
+        for (const token of tokens) {
+          if (!place && looksLikePlace(token)) place = token;
+          else if (!teacher && token) teacher = token;
+        }
+        return { name: name || "", place, teacher };
+      }
+
+      function splitCellEntries(value) {
+        return cellText(value)
+          .split(/\r?\n|；|;/)
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+
+      function matrixEntryGroups(value) {
+        const lines = splitCellEntries(value);
+        const groups = [];
+        for (const line of lines) {
+          const isMetaLine = /^(?:[A-Za-z]?[\d-]{2,}|[^A-Za-z0-9]{0,4}(?:楼|室|馆|厅|机房|操场|实验室|线上|教学楼)|[^\s]{1,12}(?:老师|教师))$/.test(line);
+          if (isMetaLine && groups.length) {
+            groups[groups.length - 1] += ` ${line}`;
+          } else {
+            groups.push(line);
+          }
+        }
+        return groups;
+      }
+
+      function colorFromText(value) {
+        let sum = 0;
+        for (const char of String(value)) sum += char.codePointAt(0) || 0;
+        return DAY_COLORS[sum % DAY_COLORS.length];
+      }
+
+      function findListHeaderIndex(grid) {
+        const headerPattern = /课程|科目|星期|周几|时间|节次|教师|老师|地点|教室|名称/;
+        const searchEnd = Math.min(grid.length, 15);
+        for (let index = 0; index < searchEnd; index += 1) {
+          const row = grid[index];
+          if (row.filter(Boolean).length < 3) continue;
+          const matchingCells = row.filter((cell) => headerPattern.test(cell)).length;
+          if (matchingCells >= 2) return index;
+        }
+        return grid.length ? 0 : -1;
+      }
+
+      function guessListMappings(headers) {
+        const mapping = { course: -1, day: -1, start: -1, end: -1, place: -1, teacher: -1 };
+        headers.forEach((header, index) => {
+          const normalized = normalizeHeaderText(header);
+          if (mapping.course === -1 && /课程名称|课程名|科目|课程/.test(normalized) && !/课程代码|课程号|课程编号/.test(normalized)) {
+            mapping.course = index;
+          } else if (mapping.day === -1 && parseWeekday(header) !== null) {
+            mapping.day = index;
+          } else if (mapping.day === -1 && /星期|周几|礼拜/.test(normalized)) {
+            mapping.day = index;
+          } else if (mapping.end === -1 && /下课|结束时间/.test(normalized)) {
+            mapping.end = index;
+          } else if (mapping.start === -1 && /上课时间|起止时间|时间|节次|开始时间/.test(normalized)) {
+            mapping.start = index;
+          } else if (mapping.place === -1 && /地点|教室|场地|校区/.test(normalized)) {
+            mapping.place = index;
+          } else if (mapping.teacher === -1 && /教师|老师/.test(normalized)) {
+            mapping.teacher = index;
+          }
+        });
+        return mapping;
+      }
+
+      function mappingLabel(header, index) {
+        const label = header || "无标题";
+        return `第${index + 1}列 · ${label.length > 14 ? `${label.slice(0, 14)}…` : label}`;
+      }
+
+      function fillMappingSelects(headers) {
+        const options = ["-1", "不选择"].concat(
+          headers.map((header, index) => [String(index), mappingLabel(header, index)])
+        );
+        Object.values(mappingSelects).forEach((select) => {
+          select.innerHTML = options.map(([value, label]) => `<option value="${value}">${escapeHtml(label)}</option>`).join("");
+        });
+        const guessed = guessListMappings(headers);
+        Object.entries(guessed).forEach(([key, value]) => {
+          if (value >= 0) mappingSelects[key].value = String(value);
+        });
+      }
+
+      function readListMappings() {
+        return Object.fromEntries(
+          Object.entries(mappingSelects).map(([key, select]) => [key, Number(select.value)])
+        );
+      }
+
+      function parseListRows(headers, dataRows, mappings) {
+        const parsedCourses = [];
+        let skipped = 0;
+        const mappingsByName = mappings;
+        dataRows.forEach((row) => {
+          const pick = (columnIndex) => (columnIndex >= 0 ? cellText(row[columnIndex]) : "");
+          let name = stripWeekNotes(pick(mappingsByName.course)).trim();
+          if (!name || /^(合计|总计|小计)$/.test(name)) {
+            skipped += 1;
+            return;
+          }
+          if (/^(课程名称|课程名|科目)[：:]/.test(name)) name = name.replace(/^(课程名称|课程名|科目)[：:]/, "").trim();
+          if (!name) {
+            skipped += 1;
+            return;
+          }
+
+          const rawDay = pick(mappingsByName.day);
+          const rawStart = pick(mappingsByName.start);
+          const rawEnd = pick(mappingsByName.end);
+          const combined = [rawDay, rawStart, rawEnd].join(" ");
+          let day = parseWeekday(rawDay, true);
+          if (day === null) day = parseWeekdayFromText(combined);
+          if (day === null) {
+            skipped += 1;
+            return;
+          }
+
+          let timeInfo = parseTimeExpression(rawStart) || parseTimeExpression(combined);
+          if (!timeInfo) timeInfo = parseSlotInfo(rawStart) || parseSlotInfo(combined);
+          let start = timeInfo ? timeInfo.start : null;
+          let end = timeInfo ? timeInfo.end : null;
+          if (!end && mappingsByName.end >= 0) end = parseSingleClock(pick(mappingsByName.end));
+          if (!start) {
+            skipped += 1;
+            return;
+          }
+          if (!end) end = addMinutes(start, 45);
+          if (timeToMinutes(end) <= timeToMinutes(start)) {
+            skipped += 1;
+            return;
+          }
+
+          const cleanCourse = parseCourseNameAndMeta(name);
+          const finalName = cleanCourse.name || name;
+          const place = stripWeekNotes(pick(mappingsByName.place)) || cleanCourse.place;
+          const teacher = stripWeekNotes(pick(mappingsByName.teacher)) || cleanCourse.teacher;
+          parsedCourses.push({
+            name: finalName,
+            day,
+            start,
+            end,
+            place: place || "",
+            teacher: teacher || "",
+            color: colorFromText(finalName)
+          });
+        });
+        return { courses: parsedCourses, skipped };
+      }
+
+      function detectMatrixGrid(grid) {
+        const searchEnd = Math.min(grid.length, 15);
+        for (let headerIndex = 0; headerIndex < searchEnd; headerIndex += 1) {
+          const row = grid[headerIndex];
+          if (!row) continue;
+          const dayColumns = [];
+          row.forEach((cell, columnIndex) => {
+            if (columnIndex > 0 && parseWeekday(cell) !== null) dayColumns.push(columnIndex);
+          });
+          if (dayColumns.length < 4 || headerIndex + 1 >= grid.length) continue;
+          let timeColumn = -1;
+          row.forEach((cell, columnIndex) => {
+            if (dayColumns.includes(columnIndex)) return;
+            if (/时间|节次/.test(cellText(cell))) timeColumn = columnIndex;
+          });
+          const hasData = grid.slice(headerIndex + 1).some((dataRow) => {
+            return dayColumns.some((columnIndex) => splitCellEntries(dataRow[columnIndex]).length);
+          });
+          if (!hasData) continue;
+          return { headerIndex, dayColumns, timeColumn };
+        }
+        return null;
+      }
+
+      function parseMatrixGrid(grid, matrixInfo) {
+        const headerRow = grid[matrixInfo.headerIndex];
+        const parsedCourses = [];
+        let skipped = 0;
+        for (let rowIndex = matrixInfo.headerIndex + 1; rowIndex < grid.length; rowIndex += 1) {
+          const row = grid[rowIndex];
+          if (!row || !row.some(Boolean)) continue;
+          const timeCandidates = [];
+          if (matrixInfo.timeColumn >= 0) timeCandidates.push(cellText(row[matrixInfo.timeColumn]));
+          timeCandidates.push(cellText(row[0]));
+          let rowTime = null;
+          for (const candidate of timeCandidates) {
+            rowTime = parseTimeExpression(candidate) || parseSlotInfo(candidate);
+            if (rowTime) break;
+          }
+          let rowHasCourse = false;
+          for (const dayColumn of matrixInfo.dayColumns) {
+            const day = parseWeekday(headerRow[dayColumn]);
+            if (day === null) continue;
+            const rawEntries = matrixEntryGroups(row[dayColumn]);
+            for (const rawEntry of rawEntries) {
+              if (/^(无|空|\/|-|—|暂无课程)$/.test(rawEntry)) continue;
+              rowHasCourse = true;
+              const entryTime = parseTimeExpression(rawEntry);
+              const time = entryTime || rowTime;
+              if (!time || !time.start || !time.end) {
+                skipped += 1;
+                continue;
+              }
+              const parsed = parseCourseNameAndMeta(stripClockRanges(rawEntry));
+              if (!parsed.name) {
+                skipped += 1;
+                continue;
+              }
+              parsedCourses.push({
+                name: parsed.name,
+                day,
+                start: time.start,
+                end: time.end,
+                place: parsed.place || "",
+                teacher: parsed.teacher || "",
+                color: colorFromText(parsed.name)
+              });
+            }
+          }
+          if (!rowHasCourse && rowTime && grid.slice(rowIndex + 1).some((nextRow) => nextRow.some(Boolean))) {
+            // keep scanning; row may be an empty spacer inside the matrix
+          }
+        }
+        return { courses: parsedCourses, skipped };
+      }
+
+      function handleGrid(grid, fileName) {
+        const cleanGrid = grid
+          .map((row) => row.map(cellText))
+          .filter((row) => row.some((cell) => cell !== ""));
+        if (!cleanGrid.length) {
+          showImportError("这个文件里没有可识别的表格内容");
+          return;
+        }
+
+        importGrid = cleanGrid;
+        importFileName = fileName;
+        importFileHint.textContent = fileName;
+        const matrixInfo = detectMatrixGrid(cleanGrid);
+
+        if (matrixInfo) {
+          importMatrixInfo = matrixInfo;
+          importHeaderIndex = -1;
+          importDataRows = [];
+          mappingArea.hidden = true;
+          const result = parseMatrixGrid(cleanGrid, matrixInfo);
+          renderImportResult(result);
+          return;
+        }
+
+        importMatrixInfo = null;
+        const headerIndex = findListHeaderIndex(cleanGrid);
+        importHeaderIndex = headerIndex;
+        const headers = cleanGrid[headerIndex] || [];
+        importDataRows = cleanGrid.slice(headerIndex + 1).filter((row) => row.length >= 2);
+        fillMappingSelects(headers);
+        mappingArea.hidden = false;
+        const mappings = readListMappings();
+        const result = parseListRows(headers, importDataRows, mappings);
+        renderImportResult(result);
+      }
+
+      function showImportError(message) {
+        importError.textContent = message;
+        importError.classList.add("visible");
+      }
+
+      function clearImportError() {
+        importError.textContent = "";
+        importError.classList.remove("visible");
+      }
+
+      function renderImportResult(result) {
+        clearImportError();
+        pendingCourses = result.courses;
+        const total = result.courses.length;
+        const skippedText = result.skipped ? `，另有 ${result.skipped} 行未识别` : "";
+        importState.innerHTML = `<b>${escapeHtml(importFileName)}</b>：识别到 <b>${total}</b> 门课程${skippedText}`;
+        importState.hidden = false;
+
+        if (!total) {
+          previewArea.hidden = true;
+          importMode.hidden = true;
+          confirmImport.hidden = true;
+          showImportError("暂时没有识别出课程，请检查列设置后重新匹配");
+          return;
+        }
+
+        previewArea.hidden = false;
+        importMode.hidden = false;
+        confirmImport.hidden = false;
+        confirmImport.textContent = `确认导入 ${total} 门课`;
+        const maxPreview = 80;
+        previewTitle.textContent = total > maxPreview ? `识别预览（前 ${maxPreview} 条 / 共 ${total} 条）` : "识别预览";
+        previewBody.innerHTML = result.courses.slice(0, maxPreview).map((course) => {
+          return `
+            <tr>
+              <td class="preview-day">${WEEKDAYS[course.day] || "未知"}</td>
+              <td class="preview-time">${escapeHtml(course.start)} - ${escapeHtml(course.end)}</td>
+              <td>${escapeHtml(course.name)}</td>
+              <td>${course.place ? escapeHtml(course.place) : "—"}</td>
+              <td>${course.teacher ? escapeHtml(course.teacher) : "—"}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      function uniqueCourseKey(course) {
+        return [course.name, course.day, course.start, course.end, course.place, course.teacher].join("|");
+      }
+
+      function openImportDialog(target = "mine") {
+        importTarget = target;
+        const isFriend = importTarget === "friend";
+        importModeLegend.textContent = isFriend ? "导入到同学课表" : "导入到我的课表";
+        replaceModeLabel.textContent = isFriend ? "替换同学课表" : "替换当前课表";
+        mergeModeLabel.textContent = isFriend ? "追加到同学课表" : "追加到现有课表";
+        fileInput.value = "";
+        pendingCourses = [];
+        importGrid = [];
+        importHeaderIndex = -1;
+        importDataRows = [];
+        importMatrixInfo = null;
+        importFileName = "";
+        importFileHint.textContent = "";
+        clearImportError();
+        importState.hidden = true;
+        mappingArea.hidden = true;
+        previewArea.hidden = true;
+        importMode.hidden = true;
+        confirmImport.hidden = true;
+        importDialog.showModal();
+      }
+
+      function closeImportDialog() {
+        importDialog.close();
+      }
+
+      async function decodeFileText(file) {
+        const buffer = await file.arrayBuffer();
+        const utf8 = new TextDecoder("utf-8").decode(buffer);
+        if (!utf8.includes("\uFFFD")) return utf8;
+        try {
+          return new TextDecoder("gbk").decode(buffer);
+        } catch (error) {
+          console.warn("GBK 解码不可用", error);
+        }
+        return utf8;
+      }
+
+      function injectScript(url) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          let settled = false;
+          const timer = setTimeout(() => {
+            if (!settled) {
+              settled = true;
+              script.remove();
+              reject(new Error("加载超时"));
+            }
+          }, 10000);
+          script.src = url;
+          script.onload = () => {
+            if (!settled) {
+              settled = true;
+              clearTimeout(timer);
+              resolve();
+            }
+          };
+          script.onerror = () => {
+            if (!settled) {
+              settled = true;
+              clearTimeout(timer);
+              script.remove();
+              reject(new Error("加载失败"));
+            }
+          };
+          document.head.appendChild(script);
+        });
+      }
+
+      async function loadSheetJSLibrary() {
+        if (window.XLSX) return;
+        const sources = [
+          "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js",
+          "https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js",
+          "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+        ];
+        for (const source of sources) {
+          try {
+            await injectScript(source);
+            if (window.XLSX) return;
+          } catch (error) {
+            console.warn("加载表格解析组件失败", error);
+          }
+        }
+        throw new Error("无法加载表格解析组件，请确认网络可用或先导出为 CSV 文件");
+      }
+
+      async function readWorkbookGrid(file) {
+        await loadSheetJSLibrary();
+        const buffer = await file.arrayBuffer();
+        const workbook = window.XLSX.read(buffer, { type: "array" });
+        if (!workbook.SheetNames.length) throw new Error("Excel 文件里没有工作表");
+        let chosenSheet = workbook.Sheets[workbook.SheetNames[0]];
+        let bestCount = -1;
+        workbook.SheetNames.forEach((sheetName) => {
+          const sheet = workbook.Sheets[sheetName];
+          const cellCount = sheet && Object.keys(sheet).filter((key) => key.startsWith("!") === false).length;
+          if (cellCount > bestCount) {
+            bestCount = cellCount;
+            chosenSheet = sheet;
+          }
+        });
+        return window.XLSX.utils.sheet_to_json(chosenSheet, { header: 1, raw: false, defval: "" });
+      }
+
+      async function loadPdfJSLibrary() {
+        if (window.pdfjsLib) return;
+        const sources = [
+          "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js",
+          "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"
+        ];
+        for (const source of sources) {
+          try {
+            await injectScript(source);
+            if (window.pdfjsLib) {
+              window.pdfjsLib.GlobalWorkerOptions.workerSrc = source.replace("pdf.min.js", "pdf.worker.min.js");
+              return;
+            }
+          } catch (error) {
+            console.warn("加载 PDF 解析组件失败", error);
+          }
+        }
+        throw new Error("无法加载 PDF 解析组件，请确认网络可用");
+      }
+
+      function pdfTextItemsToRows(items) {
+        const positioned = [];
+        items.forEach((item) => {
+          const raw = item.str || "";
+          if (!raw.trim()) return;
+          const transform = item.transform || [1, 0, 0, 1, 0, 0];
+          positioned.push({
+            text: raw.trim(),
+            x: transform[4] || 0,
+            y: transform[5] || 0,
+            scale: Math.abs(transform[0]) || 1,
+            width: Math.abs(item.width || 0) * (Math.abs(transform[0]) || 1)
+          });
+        });
+        positioned.sort((a, b) => b.y - a.y || a.x - b.x);
+
+        const textLines = [];
+        let currentLine = [];
+        let currentY = null;
+        for (const item of positioned) {
+          if (currentLine.length && Math.abs(item.y - currentY) > 3.5) {
+            textLines.push(currentLine);
+            currentLine = [];
+          }
+          if (!currentLine.length) currentY = item.y;
+          currentLine.push(item);
+        }
+        if (currentLine.length) textLines.push(currentLine);
+
+        return textLines.map((line) => {
+          line.sort((a, b) => a.x - b.x);
+          const cells = [];
+          const xPositions = [];
+          let cell = "";
+          let cellX = null;
+          let rightEdge = line[0].x + line[0].width;
+          for (let index = 0; index < line.length; index += 1) {
+            const item = line[index];
+            const gap = item.x - rightEdge;
+            if (gap > 6) {
+              if (cell) {
+                cells.push(cell);
+                xPositions.push(cellX);
+              }
+              cell = item.text;
+              cellX = item.x;
+              rightEdge = item.x + item.width;
+            } else {
+              cell += ` ${item.text}`;
+              if (cellX === null) cellX = item.x;
+              rightEdge = Math.max(rightEdge, item.x + item.width);
+            }
+          }
+          if (cell) {
+            cells.push(cell);
+            xPositions.push(cellX);
+          }
+          return { cells, xPositions };
+        }).filter((row) => row.cells.some((cell) => cell !== ""));
+      }
+
+      function choosePdfHeaderLine(lines) {
+        let bestIndex = -1;
+        let bestScore = 3;
+        const searchEnd = Math.min(lines.length, 15);
+        for (let index = 0; index < searchEnd; index += 1) {
+          const cells = lines[index].cells;
+          let score = 0;
+          cells.forEach((cell) => {
+            if (parseWeekday(cell) !== null) score += 3;
+            if (/课程|科目|星期|周几|时间|节次|教师|老师|地点|教室|名称/.test(cell)) score += 1;
+          });
+          if (score > bestScore && cells.length >= 3) {
+            bestScore = score;
+            bestIndex = index;
+          }
+        }
+        return bestIndex;
+      }
+
+      function alignPdfRows(lines, headerIndex) {
+        const headerXs = lines[headerIndex].xPositions;
+        return lines.map((line) => {
+          const cells = Array.from({ length: headerXs.length }, () => "");
+          line.cells.forEach((cell, cellIndex) => {
+            let nearest = 0;
+            let nearestDistance = Infinity;
+            headerXs.forEach((headerX, columnIndex) => {
+              const distance = Math.abs((line.xPositions[cellIndex] || 0) - headerX);
+              if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearest = columnIndex;
+              }
+            });
+            cells[nearest] = cells[nearest] ? `${cells[nearest]} ${cell}` : cell;
+          });
+          return cells;
+        });
+      }
+
+      async function readPdfGrid(file) {
+        await loadPdfJSLibrary();
+        const buffer = await file.arrayBuffer();
+        const task = window.pdfjsLib.getDocument({ data: new Uint8Array(buffer) });
+        const pdf = await task.promise;
+        const rawLines = [];
+        try {
+          const pageCount = Math.min(pdf.numPages, 40);
+          for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
+            const page = await pdf.getPage(pageNumber);
+            const content = await page.getTextContent();
+            rawLines.push(...pdfTextItemsToRows(content.items));
+          }
+        } finally {
+          await pdf.destroy();
+        }
+        if (!rawLines.length) throw new Error("这份 PDF 里没有可读取的文字，扫描图片需要先转成文字 PDF");
+        const headerIndex = choosePdfHeaderLine(rawLines);
+        return headerIndex >= 0 ? alignPdfRows(rawLines, headerIndex) : rawLines.map((line) => line.cells);
+      }
+
+      async function handleImportFile(file) {
+        if (!file) return;
+        clearImportError();
+        importFileHint.textContent = file.name;
+        const lowerName = file.name.toLowerCase();
+        try {
+          if (lowerName.endsWith(".xlsx") || lowerName.endsWith(".xls")) {
+            const grid = await readWorkbookGrid(file);
+            handleGrid(grid, file.name);
+          } else if (lowerName.endsWith(".pdf")) {
+            const grid = await readPdfGrid(file);
+            handleGrid(grid, file.name);
+          } else {
+            const text = await decodeFileText(file);
+            const delimiter = detectDelimiter(text);
+            handleGrid(parseDelimitedText(text, delimiter), file.name);
+          }
+        } catch (error) {
+          console.warn("导入失败", error);
+          showImportError(error.message || "读取文件失败，请换一个文件试试");
+        }
+      }
+
+      function applyPendingImport() {
+        if (!pendingCourses.length) return;
+        const mode = importDialog.querySelector('input[name="importMode"]:checked')?.value || "replace";
+        const seen = new Set();
+        const normalized = pendingCourses.map((course) => ({
+          ...course,
+          id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`
+        })).filter((course) => {
+          const key = uniqueCourseKey(course);
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+
+        const isFriend = importTarget === "friend";
+        const target = isFriend ? friendCourses : courses;
+        if (mode === "merge") {
+          const existingKeys = new Set(target.map(uniqueCourseKey));
+          const additions = normalized.filter((course) => !existingKeys.has(uniqueCourseKey(course)));
+          if (isFriend) {
+            friendCourses = friendCourses.concat(additions);
+          } else {
+            courses = courses.concat(additions);
+          }
+        } else {
+          if (isFriend) {
+            friendCourses = normalized;
+          } else {
+            courses = normalized;
+          }
+        }
+        const updatedCourses = isFriend ? friendCourses : courses;
+        updatedCourses.sort((a, b) => a.day - b.day || timeToMinutes(a.start) - timeToMinutes(b.start));
+        if (isFriend) saveFriendCourses(); else saveCourses();
+        render();
+        closeImportDialog();
+      }
+
+      function currentMonday() {
+        const now = new Date();
+        const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        monday.setDate(monday.getDate() - ((now.getDay() + 6) % 7));
+        return monday;
+      }
+
+      function todayIndex() {
+        return (new Date().getDay() + 6) % 7;
+      }
+
+      function dateText(date) {
+        return `${date.getMonth() + 1}/${date.getDate()}`;
+      }
+
+      function formatDateKey(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      }
+
+      function currentWeekDate(dayIndex) {
+        const monday = currentMonday();
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + dayIndex);
+        return date;
+      }
+
+      function courseAttendanceKey(course) {
+        const date = currentWeekDate(course.day || 0);
+        return `${formatDateKey(date)}|${course.id}`;
+      }
+
+      function isOccurrenceFinished(course, date) {
+        const now = new Date();
+        const end = course.end || "22:00";
+        const [endHour, endMinute] = end.split(":").map(Number);
+        const endAt = new Date(date.getFullYear(), date.getMonth(), date.getDate(), endHour, endMinute);
+        return endAt.getTime() <= now.getTime();
+      }
+
+      function isCourseLiveNow(course) {
+        if ((course.day || 0) !== todayIndex()) return false;
+        const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+        const startMinutes = timeToMinutes(course.start || "08:00");
+        const endMinutes = timeToMinutes(course.end || "22:00");
+        return nowMinutes >= startMinutes && nowMinutes < endMinutes;
+      }
+
+      function syncAttendance() {
+        let changed = false;
+        courses.forEach((course) => {
+          if (!isCourseActiveInWeek(course, currentWeekNumber())) return;
+          const date = currentWeekDate(course.day || 0);
+          if (!isOccurrenceFinished(course, date)) return;
+          const key = courseAttendanceKey(course);
+          if (!attendance[key]) {
+            attendance[key] = true;
+            changed = true;
+          }
+        });
+        if (changed) saveAttendance();
+      }
+
+      function isCourseChecked(course) {
+        const record = attendance[courseAttendanceKey(course)];
+        return record === true || Boolean(record && typeof record === "object" && record.checked === true);
+      }
+
+      function courseMoodValue(course) {
+        const record = attendance[courseAttendanceKey(course)];
+        if (!record || typeof record !== "object") return null;
+        return MOOD_BY_VALUE[record.mood] ? record.mood : null;
+      }
+
+      function setCourseMood(course, mood) {
+        const date = currentWeekDate(course.day || 0);
+        if (!isOccurrenceFinished(course, date)) return;
+        const key = courseAttendanceKey(course);
+        const record = attendance[key] && typeof attendance[key] === "object"
+          ? { ...attendance[key] }
+          : { checked: true, mood: null };
+        record.checked = true;
+        record.mood = MOOD_BY_VALUE[mood] ? mood : null;
+        attendance[key] = record;
+        saveAttendance();
+        render();
+      }
+
+      function renderHeader() {
+        const now = new Date();
+        const weekday = WEEKDAYS[(now.getDay() + 6) % 7];
+        const longWeekday = new Intl.DateTimeFormat("zh-CN", { weekday: "long" }).format(now);
+        $("#todayCaption").textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 · ${longWeekday}`;
+        const activeCourses = visibleCourses();
+        $("#courseCount").textContent = String(activeCourses.length);
+        $("#todayCount").textContent = String(activeCourses.filter((course) => course.day === todayIndex()).length);
+
+        const headerRow = $("#dayHeaderRow");
+        headerRow.innerHTML = "";
+        const corner = document.createElement("div");
+        corner.className = "corner-cell";
+        corner.textContent = "时间";
+        headerRow.appendChild(corner);
+
+        const monday = currentMonday();
+        WEEKDAYS.forEach((name, index) => {
+          const date = new Date(monday);
+          date.setDate(monday.getDate() + index);
+          const cell = document.createElement("div");
+          cell.className = "day-head";
+          if (index === todayIndex()) cell.classList.add("is-today");
+          cell.innerHTML = `
+            <span class="day-name">${name}${index === todayIndex() ? '<span class="today-tag">今天</span>' : ""}</span>
+            <span class="day-date">${dateText(date)}</span>
+          `;
+          headerRow.appendChild(cell);
+        });
+      }
+
+      function renderTimeAxis(axis) {
+        axis.innerHTML = "";
+        for (let hour = START_HOUR; hour <= END_HOUR - 1; hour += 1) {
+          const label = document.createElement("span");
+          label.className = "time-label";
+          label.style.top = `${(hour - START_HOUR) * 52 + 5}px`;
+          label.textContent = `${String(hour).padStart(2, "0")}:00`;
+          axis.appendChild(label);
+        }
+      }
+
+      function courseLayouts(dayCourses) {
+        const sorted = [...dayCourses].sort((a, b) => {
+          const startDiff = timeToMinutes(a.start) - timeToMinutes(b.start);
+          if (startDiff !== 0) return startDiff;
+          return timeToMinutes(b.end) - timeToMinutes(a.end);
+        });
+
+        const layouts = [];
+        let group = [];
+        let groupEnd = -Infinity;
+
+        for (const course of sorted) {
+          const start = timeToMinutes(course.start);
+          const end = timeToMinutes(course.end);
+          if (group.length && start >= groupEnd) {
+            layouts.push(...arrangeGroup(group));
+            group = [course];
+            groupEnd = end;
+          } else {
+            group.push(course);
+            groupEnd = Math.max(groupEnd, end);
+          }
+        }
+        if (group.length) layouts.push(...arrangeGroup(group));
+        return layouts;
+      }
+
+      function arrangeGroup(group) {
+        const occupied = [];
+        const arranged = [];
+        for (const course of group) {
+          const start = timeToMinutes(course.start);
+          const end = timeToMinutes(course.end);
+          let col = occupied.findIndex((occupiedEnd) => occupiedEnd <= start);
+          if (col === -1) col = occupied.length;
+          occupied[col] = end;
+          arranged.push({ course, col });
+        }
+        return arranged.map((item) => ({ ...item, colCount: occupied.length }));
+      }
+
+      function courseAriaLabel(course) {
+        const bits = [
+          course.name,
+          `${course.dayName} ${course.start} 到 ${course.end}`,
+          course.place,
+          course.teacher
+        ].filter(Boolean);
+        return bits.join("，");
+      }
+
+      function renderCourse(course, col, colCount) {
+        const totalMinutes = (END_HOUR - START_HOUR) * 60;
+        const gridHeight = 728;
+        const start = timeToMinutes(course.start);
+        const end = timeToMinutes(course.end);
+        const top = ((start - START_HOUR * 60) / totalMinutes) * gridHeight + 2;
+        const height = ((end - start) / totalMinutes) * gridHeight - 4;
+        const leftPercent = (col / colCount) * 100;
+        const widthPercent = 100 / colCount;
+
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = `course-card c-${course.color}`;
+        if (height < 52) card.classList.add("is-compact");
+        if (height < 36) card.classList.add("is-tiny");
+        card.style.top = `${Math.max(2, top)}px`;
+        card.style.height = `${Math.max(30, height)}px`;
+        card.style.left = `calc(${leftPercent}% + 3px)`;
+        card.style.width = `calc(${widthPercent}% - 6px)`;
+        card.dataset.id = course.id;
+        card.dataset.day = course.day;
+        const checked = isCourseChecked(course);
+        const live = !checked && isCourseLiveNow(course);
+        const moodValue = checked ? courseMoodValue(course) : null;
+        const mood = moodValue ? MOOD_BY_VALUE[moodValue] : null;
+        if (checked) card.classList.add("is-done");
+        if (live) card.classList.add("is-live");
+        if (mood) card.classList.add("has-mood");
+        card.setAttribute(
+          "aria-label",
+          `${courseAriaLabel(course)}${checked ? "，已自动打卡" : live ? "，上课中" : ""}${mood ? `，心情：${mood.label}` : ""}`
+        );
+
+        const metaBits = [course.place, course.teacher].filter(Boolean).join(" · ");
+        const mapIcon = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        `;
+        const attendanceBadge = checked
+          ? `<span class="attendance-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>`
+          : "";
+        const moodBadge = mood
+          ? `<span class="mood-badge" title="${mood.label}" aria-label="${mood.label}">${mood.emoji}</span>`
+          : "";
+        const tagValue = course.tag && TAG_BY_VALUE[course.tag] ? course.tag : "";
+        const tag = tagValue ? TAG_BY_VALUE[tagValue] : null;
+        const tagMarkup = tag
+          ? `<span class="course-tag t-${tag.value}">${tag.label}</span>`
+          : "";
+        card.innerHTML = `
+          <span class="course-time">${course.start} - ${course.end}</span>
+          <strong class="course-title">${escapeHtml(course.name)}</strong>
+          ${metaBits ? `<span class="course-meta">${mapIcon}<span>${escapeHtml(metaBits)}</span></span>` : ""}
+          ${tagMarkup}
+          ${attendanceBadge}
+          ${moodBadge}
+        `;
+        card.addEventListener("click", () => openDialog(course));
+        return card;
+      }
+
+      function renderSchedule() {
+        const body = $("#scheduleBody");
+        body.innerHTML = "";
+
+        const axis = document.createElement("div");
+        axis.className = "time-axis";
+        renderTimeAxis(axis);
+        body.appendChild(axis);
+
+        const columns = WEEKDAYS.map((_, index) => {
+          const column = document.createElement("div");
+          column.className = "day-column";
+          column.dataset.day = index;
+          if (index === todayIndex()) column.classList.add("is-today");
+          const gridLines = document.createElement("div");
+          gridLines.className = "grid-lines";
+          column.appendChild(gridLines);
+          body.appendChild(column);
+          return column;
+        });
+
+        const byDay = Array.from({ length: 7 }, () => []);
+        visibleCourses().forEach((course) => byDay[course.day]?.push(course));
+
+        byDay.forEach((dayCourses, day) => {
+          courseLayouts(dayCourses).forEach(({ course, col, colCount }) => {
+            columns[day].appendChild(renderCourse(course, col, colCount));
+          });
+        });
+
+        if (!courses.length) {
+          const note = document.createElement("div");
+          note.className = "empty-note";
+          note.style.display = "block";
+          note.style.left = "calc(50% + var(--gutter) / 2)";
+          note.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+              <path d="M8 3v4"></path>
+              <path d="M16 3v4"></path>
+              <path d="M3 9h18"></path>
+            </svg>
+            本周还没有课程
+          `;
+          body.appendChild(note);
+        }
+
+        updateNowLine();
+      }
+
+      function renderAgenda() {
+        const monday = currentMonday();
+        agendaDays.innerHTML = WEEKDAYS.map((dayName, index) => {
+          const date = new Date(monday);
+          date.setDate(monday.getDate() + index);
+          const classes = ["agenda-day"];
+          if (index === todayIndex()) classes.push("is-today");
+          if (index === agendaDay) classes.push("is-active");
+          return `
+            <button class="${classes.join(" ")}" type="button" data-agenda-day="${index}">
+              <b>${dayName}</b>
+              <small>${dateText(date)}</small>
+            </button>
+          `;
+        }).join("");
+
+        renderTimeline();
+      }
+
+      function renderTimelineAxis() {
+        timelineAxis.innerHTML = "";
+        for (let hour = START_HOUR; hour < END_HOUR; hour += 1) {
+          const label = document.createElement("span");
+          label.className = "timeline-time";
+          label.style.top = `${(hour - START_HOUR) * 60 + 7}px`;
+          label.textContent = `${String(hour).padStart(2, "0")}:00`;
+          timelineAxis.appendChild(label);
+        }
+      }
+
+      function renderTimelineCourse(course, col, colCount) {
+        const timelineMinutes = (END_HOUR - START_HOUR) * 60;
+        const start = timeToMinutes(course.start);
+        const end = timeToMinutes(course.end);
+        const top = ((start - START_HOUR * 60) / timelineMinutes) * 840 + 3;
+        const height = ((end - start) / timelineMinutes) * 840 - 6;
+        const leftPercent = (col / colCount) * 100;
+        const widthPercent = 100 / colCount;
+        const checked = isCourseChecked(course);
+        const live = !checked && isCourseLiveNow(course);
+        const moodValue = checked ? courseMoodValue(course) : null;
+        const mood = moodValue ? MOOD_BY_VALUE[moodValue] : null;
+        const meta = [course.place, course.teacher].filter(Boolean).join(" · ");
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = `timeline-course c-${course.color}`;
+        if (mood) card.classList.add("has-mood");
+        card.dataset.id = course.id;
+        card.style.top = `${Math.max(3, top)}px`;
+        card.style.height = `${Math.max(34, height)}px`;
+        card.style.left = `calc(${leftPercent}% + 3px)`;
+        card.style.width = `calc(${widthPercent}% - 6px)`;
+        card.setAttribute(
+          "aria-label",
+          `${escapeHtml(courseAriaLabel(course))}${checked ? "，已自动打卡" : live ? "，上课中" : ""}${mood ? `，心情：${mood.label}` : ""}`
+        );
+        const attendanceBadge = checked
+          ? `<span class="attendance-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>`
+          : "";
+        const moodBadge = mood
+          ? `<span class="mood-badge" title="${mood.label}" aria-label="${mood.label}">${mood.emoji}</span>`
+          : "";
+        const tagValue = course.tag && TAG_BY_VALUE[course.tag] ? course.tag : "";
+        const tag = tagValue ? TAG_BY_VALUE[tagValue] : null;
+        const tagMarkup = tag
+          ? `<span class="course-tag t-${tag.value}">${tag.label}</span>`
+          : "";
+        card.innerHTML = `
+          <span class="course-time">${course.start} - ${course.end}</span>
+          <strong class="course-title">${escapeHtml(course.name)}</strong>
+          ${meta ? `<span class="course-meta"><span>${escapeHtml(meta)}</span></span>` : ""}
+          ${tagMarkup}
+          ${attendanceBadge}
+          ${moodBadge}
+        `;
+        return card;
+      }
+
+      function renderTimeline() {
+        renderTimelineAxis();
+        const dayCourses = visibleCourses().filter((course) => course.day === agendaDay);
+        timelineTrack.innerHTML = "";
+
+        if (!dayCourses.length) {
+          const empty = document.createElement("div");
+          empty.className = "timeline-empty";
+          empty.textContent = "这一天没有课程";
+          timelineTrack.appendChild(empty);
+        } else {
+          courseLayouts(dayCourses).forEach(({ course, col, colCount }) => {
+            timelineTrack.appendChild(renderTimelineCourse(course, col, colCount));
+          });
+        }
+
+        timelineTrack.querySelectorAll(".timeline-now").forEach((line) => line.remove());
+        if (agendaDay !== todayIndex()) return;
+        const now = new Date();
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        const fromStart = nowMinutes - START_HOUR * 60;
+        if (fromStart < 0 || fromStart > (END_HOUR - START_HOUR) * 60) return;
+        const line = document.createElement("div");
+        line.className = "timeline-now";
+        line.style.top = `${(fromStart / ((END_HOUR - START_HOUR) * 60)) * 840}px`;
+        timelineTrack.appendChild(line);
+      }
+
+      function dateKey(date) {
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${date.getFullYear()}-${month}-${day}`;
+      }
+
+      function weekdayIndex(date) {
+        return (date.getDay() + 6) % 7;
+      }
+
+      function weekNumberForDate(date) {
+        const diff = Math.floor((date - SEMESTER_START) / (7 * 24 * 60 * 60 * 1000));
+        return Math.max(1, diff + 1);
+      }
+
+      function currentWeekNumber() {
+        return weekNumberForDate(new Date());
+      }
+
+      function isCourseActiveInWeek(course, weekNumber = currentWeekNumber()) {
+        const rule = course.weekRule || "all";
+        if (rule === "odd") return weekNumber % 2 === 1;
+        if (rule === "even") return weekNumber % 2 === 0;
+        if (rule === "range3to12") return weekNumber >= 3 && weekNumber <= 12;
+        return true;
+      }
+
+      function visibleCourses(weekNumber = currentWeekNumber()) {
+        return courses.filter((course) => isCourseActiveInWeek(course, weekNumber));
+      }
+
+      function visibleFriendCourses(weekNumber = currentWeekNumber()) {
+        return friendCourses.filter((course) => isCourseActiveInWeek(course, weekNumber));
+      }
+
+      function durationLabel(minutes) {
+        const hours = Math.floor(minutes / 60);
+        const rest = minutes % 60;
+        if (hours && rest) return `${hours}小时${rest}分`;
+        if (hours) return `${hours}小时`;
+        return `${minutes}分钟`;
+      }
+
+      function commonFreeSlots() {
+        const mineByDay = courses.filter((course) => isCourseActiveInWeek(course) && Number.isFinite(timeToMinutes(course.start)) && Number.isFinite(timeToMinutes(course.end)));
+        const friendByDay = friendCourses.filter((course) => isCourseActiveInWeek(course) && Number.isFinite(timeToMinutes(course.start)) && Number.isFinite(timeToMinutes(course.end)));
+        const dayStart = START_HOUR * 60;
+        const dayEnd = END_HOUR * 60;
+        const slots = [];
+
+        for (let day = 0; day < 7; day += 1) {
+          const busy = mineByDay
+            .concat(friendByDay)
+            .filter((course) => course.day === day)
+            .map((course) => ({
+              start: Math.max(dayStart, timeToMinutes(course.start)),
+              end: Math.min(dayEnd, timeToMinutes(course.end))
+            }))
+            .filter((range) => range.end > range.start)
+            .sort((a, b) => a.start - b.start || a.end - b.end);
+
+          const merged = [];
+          busy.forEach((range) => {
+            const last = merged[merged.length - 1];
+            if (last && range.start <= last.end) {
+              last.end = Math.max(last.end, range.end);
+            } else {
+              merged.push({ ...range });
+            }
+          });
+
+          let cursor = dayStart;
+          merged.forEach((range) => {
+            if (range.start > cursor && range.start - cursor >= MIN_DURATION) {
+              slots.push({ day, start: cursor, end: range.start });
+            }
+            cursor = Math.max(cursor, range.end);
+          });
+          if (dayEnd - cursor >= MIN_DURATION) {
+            slots.push({ day, start: cursor, end: dayEnd });
+          }
+        }
+
+        return slots.sort((a, b) => a.day - b.day || a.start - b.start);
+      }
+
+      function renderCompare() {
+        const mine = visibleCourses();
+        const friend = visibleFriendCourses();
+        const slots = commonFreeSlots();
+
+        compareSummary.textContent = friend.length
+          ? `按本周课表自动对比，找到 ${WEEKDAYS.length} 天中至少 ${durationLabel(MIN_DURATION)} 的共同空闲时段。`
+          : "导入同学课表后，会自动找出两个人的共同空闲时间段。";
+
+        if (!friend.length) {
+          const friendCount = friendCourses.length;
+          compareStats.innerHTML = `
+            <div class=\"compare-stat\"><b>${mine.length}</b><span>我的本周课程</span></div>
+            <div class=\"compare-stat\"><b>${friendCount}</b><span>同学课程</span></div>
+            <div class=\"compare-stat\"><b>0</b><span>共同空闲</span></div>
+            <div class=\"compare-stat\"><b>0</b><span>最长空闲</span></div>
+          `;
+          compareList.innerHTML = `<p class=\"compare-empty\">${friendCount ? "当前周同学课表没有有效课程，检查一下开课周设置或者换一个同学课表试试。" : "还没有同学课表，先点击右上角“导入同学课表”，也可以把同学的 CSV / Excel / PDF 课表拖进来。"}</p>`;
+          return;
+        }
+
+        const longest = slots.reduce((max, slot) => Math.max(max, slot.end - slot.start), 0);
+        compareStats.innerHTML = `
+          <div class=\"compare-stat\"><b>${mine.length}</b><span>我的本周课程</span></div>
+          <div class=\"compare-stat\"><b>${friend.length}</b><span>同学本周课程</span></div>
+          <div class=\"compare-stat\"><b>${slots.length}</b><span>共同空闲</span></div>
+          <div class=\"compare-stat\"><b>${slots.length ? durationLabel(longest) : "0"}</b><span>最长空闲</span></div>
+        `;
+
+        if (!slots.length) {
+          compareList.innerHTML = `<p class=\"compare-empty\">本周没有找到共同空闲时段，试试把统计范围拉长，或调整一下课表再看看。</p>`;
+          return;
+        }
+
+        compareList.innerHTML = slots.map((slot) => {
+          const minutes = slot.end - slot.start;
+          return `
+            <div class=\"free-slot\" data-day=\"${slot.day}\">
+              <div class=\"free-slot-day\">${WEEKDAYS[slot.day]}</div>
+              <div class=\"free-slot-time\">${minutesToTime(slot.start)} - ${minutesToTime(slot.end)}</div>
+              <div class=\"free-slot-duration\">${durationLabel(minutes)}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function isTodayDate(date) {
+        const now = new Date();
+        return dateKey(date) === dateKey(now);
+      }
+
+      function formatDateLong(date) {
+        return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+      }
+
+      function dateLoadInfo(date) {
+        const day = weekdayIndex(date);
+        const week = weekNumberForDate(date);
+        const dayCourses = courses.filter((course) => course.day === day && isCourseActiveInWeek(course, week));
+        const minutes = dayCourses.reduce((sum, course) => {
+          return sum + (timeToMinutes(course.end) - timeToMinutes(course.start));
+        }, 0);
+        return { count: dayCourses.length, minutes };
+      }
+
+      function nextUpcomingCourse() {
+        const today = todayIndex();
+        const now = new Date();
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        return courses
+          .filter((course) => course.day === today && isCourseActiveInWeek(course))
+          .filter((course) => timeToMinutes(course.start) > nowMinutes)
+          .sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start))[0] || null;
+      }
+
+      function maybeNotifyDeparture(course) {
+        if (!commuteSetting.notify || !course) return;
+        if (!("Notification" in window)) return;
+        const now = new Date();
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        const leave = departureMinutesFor(course);
+        const start = timeToMinutes(course.start);
+        if (nowMinutes < leave || nowMinutes >= start) return;
+        const key = `${dateKey(now)}|${course.id}|${leave}`;
+        if (lastCommuteReminderKey === key) return;
+        if (Notification.permission === "granted") {
+          lastCommuteReminderKey = key;
+          new Notification("该出门上课了", {
+            body: `${course.name} ${course.start} 上课，现在从${commuteSetting.origin}出发刚好能到。`
+          });
+        }
+      }
+
+      function renderCommute() {
+        const next = nextUpcomingCourse();
+        if (!next) {
+          commuteBar.hidden = true;
+          commuteBar.classList.remove("is-leave");
+          return;
+        }
+
+        const now = new Date();
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        const leave = departureMinutesFor(next);
+        const start = timeToMinutes(next.start);
+        const commuteMinutes = commuteMinutesFor(next);
+        const place = next.place || "教室未填";
+
+        commuteTitle.textContent = "下一门课";
+        commuteDetail.textContent = `${next.name} · ${place} · ${next.start} 上课 · 从${commuteSetting.origin}步行约${commuteMinutes}分钟`;
+        commuteDepart.textContent = `建议 ${minutesToTime(leave)} 出发`;
+
+        const beforeLeave = leave - nowMinutes;
+        if (beforeLeave > 0) {
+          commuteCountdown.textContent = `还有 ${durationLabel(beforeLeave)} 出门`;
+          commuteBar.classList.remove("is-leave");
+        } else if (nowMinutes >= leave && nowMinutes < start) {
+          commuteCountdown.textContent = "现在该出门了";
+          commuteBar.classList.add("is-leave");
+        } else {
+          commuteCountdown.textContent = `${start - nowMinutes} 分钟后上课`;
+          commuteBar.classList.remove("is-leave");
+        }
+
+        commuteBar.hidden = false;
+        maybeNotifyDeparture(next);
+      }
+
+      function loadLevel(minutes) {
+        return Math.max(0, LOAD_LEVELS.findIndex((level) => minutes <= level.max));
+      }
+
+      function loadColor(minutes) {
+        return LOAD_LEVELS[loadLevel(minutes)].color;
+      }
+
+      function getHeatmapMonths() {
+        const months = [];
+        const cursor = new Date(SEMESTER_START);
+        while (cursor <= SEMESTER_END) {
+          const monthName = `${cursor.getFullYear()}年${cursor.getMonth() + 1}月`;
+          let block = months.find((item) => item.name === monthName);
+          if (!block) {
+            block = { name: monthName, days: [] };
+            months.push(block);
+          }
+          const info = dateLoadInfo(cursor);
+          block.days.push({
+            date: new Date(cursor),
+            count: info.count,
+            minutes: info.minutes
+          });
+          cursor.setDate(cursor.getDate() + 1);
+        }
+        return months;
+      }
+
+      function renderHeatmap() {
+        heatmapRange.textContent = `${formatDateLong(SEMESTER_START)} - ${formatDateLong(SEMESTER_END)}`;
+        heatmapLegend.innerHTML = LOAD_LEVELS.map((level) => (
+          `<span class="legend-chip"><span style="background:${level.color}"></span>${level.label}</span>`
+        )).join("");
+        const months = getHeatmapMonths();
+        heatmapGrid.innerHTML = months.map((block) => {
+          const firstDate = block.days[0].date;
+          const lead = weekdayIndex(firstDate);
+          const trail = (7 - ((lead + block.days.length) % 7)) % 7;
+          const emptyCell = () => `<div class="heatmap-day empty"></div>`;
+          const cells = Array.from({ length: lead }, emptyCell).concat(
+            block.days.map((item) => {
+              const level = LOAD_LEVELS[loadLevel(item.minutes)];
+              const todayClass = isTodayDate(item.date) ? " is-today" : "";
+              const note = item.count ? `${item.count}节` : "闲";
+              const title = `${formatDateLong(item.date)} · ${item.count ? `${item.count}节 · ${item.minutes}分钟` : "无课"}`;
+              return `<div class="heatmap-day ${level.className}${todayClass}" title="${title}"><b>${item.date.getDate()}</b><small>${note}</small></div>`;
+            })
+          ).concat(Array.from({ length: trail }, emptyCell));
+          const weekdays = WEEKDAY_NAMES.map((name) => `<span class="heatmap-weekday">${name}</span>`).join("");
+          return `<section class="heatmap-month"><h4 class="heatmap-month-name">${block.name}</h4><div class="heatmap-weekdays">${weekdays}</div><div class="heatmap-days">${cells.join("")}</div></section>`;
+        }).join("");
+      }
+
+      function roundedRect(ctx, x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.arcTo(x + width, y, x + width, y + height, radius);
+        ctx.arcTo(x + width, y + height, x, y + height, radius);
+        ctx.arcTo(x, y + height, x, y, radius);
+        ctx.arcTo(x, y, x + width, y, radius);
+        ctx.closePath();
+      }
+
+      function drawHeatmapCanvas() {
+        const months = getHeatmapMonths();
+        const cellW = 118;
+        const cellH = 44;
+        const gap = 6;
+        const pad = 56;
+        const headerH = 130;
+        const blockHeaderH = 46;
+        const monthPad = 16;
+        const legendH = 76;
+        const weeksHeight = months.reduce((sum, block) => {
+          const lead = weekdayIndex(block.days[0].date);
+          const weeks = Math.ceil((lead + block.days.length) / 7);
+          return sum + weeks * (cellH + gap) - gap;
+        }, 0);
+        const canvasH = headerH + months.length * (blockHeaderH + monthPad * 2) + weeksHeight + legendH;
+        const canvasW = pad * 2 + 7 * (cellW + gap) - gap;
+        const canvas = document.createElement("canvas");
+        canvas.width = canvasW;
+        canvas.height = Math.max(520, canvasH);
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#3d3c52";
+        ctx.font = "700 36px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+        ctx.fillText("粽子课表 · 学期课程热力图", pad, 78);
+        ctx.fillStyle = "#9291a5";
+        ctx.font = "18px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+        ctx.fillText(`${formatDateLong(SEMESTER_START)} - ${formatDateLong(SEMESTER_END)}`, pad, 108);
+        let y = headerH;
+        months.forEach((block) => {
+          ctx.fillStyle = "#3d3c52";
+          ctx.font = "700 24px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+          ctx.fillText(block.name, pad + 2, y + 22);
+          y += 28;
+          ctx.fillStyle = "#9291a5";
+          ctx.font = "13px 'Microsoft YaHei', 'PingFang SC', sans-serif";
+          WEEKDAY_NAMES.forEach((name, index) => {
+            ctx.fillText(name, pad + 4 + index * (cellW + gap), y);
+          });
+          y += 18;
+          const lead = weekdayIndex(block.days[0].date);
+          const weeks = Math.ceil((lead + block.days.length) / 7);
+          for (let row = 0; row < weeks; row += 1) {
+            for (let col = 0; col < 7; col += 1) {
+              const index = row * 7 + col - lead;
+              if (index < 0 || index >= block.days.length) continue;
+              const item = block.days[index];
+              const x = pad + col * (cellW + gap);
+              const cellY = y + row * (cellH + gap);
+              ctx.fillStyle = loadColor(item.minutes);
+              roundedRect(ctx, x, cellY, cellW, cellH, 14);
+              ctx.fill();
+              ctx.fillStyle = "#3d3c52";
+              ctx.font = "700 16px 'Microsoft YaHei', sans-serif";
+              ctx.fillText(String(item.date.getDate()), x + 10, cellY + 22);
+              ctx.fillStyle = "#6f6c86";
+              ctx.font = "12px 'Microsoft YaHei', sans-serif";
+              ctx.fillText(item.count ? `${item.count}节` : "闲", x + 10, cellY + 38);
+            }
+          }
+          y += weeks * (cellH + gap) - gap + monthPad * 2;
+        });
+        y += 10;
+        LOAD_LEVELS.forEach((level, index) => {
+          const x = pad + index * 140;
+          ctx.fillStyle = level.color;
+          roundedRect(ctx, x, y, 28, 28, 8);
+          ctx.fill();
+          ctx.fillStyle = "#6f6c86";
+          ctx.font = "14px 'Microsoft YaHei', sans-serif";
+          ctx.fillText(level.label, x + 36, y + 20);
+        });
+        return canvas;
+      }
+
+      function downloadHeatmap() {
+        const canvas = drawHeatmapCanvas();
+        const url = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "粽子课表学期热力图.png";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+
+      function applyViewMode() {
+        const timeTab = document.querySelector('[data-schedule-view="time"]');
+        const gridTab = document.querySelector('[data-schedule-view="grid"]');
+        const heatmapTab = document.querySelector('[data-schedule-view="heatmap"]');
+        const compareTab = document.querySelector('[data-schedule-view="compare"]');
+        const tabs = [timeTab, gridTab, heatmapTab, compareTab];
+        tabs.forEach((tab) => tab?.classList.remove("is-active"));
+        if (viewMode === "grid") {
+          gridView.hidden = false;
+          agendaView.hidden = true;
+          heatmapView.hidden = true;
+          compareView.hidden = true;
+          gridTab?.classList.add("is-active");
+        } else if (viewMode === "heatmap") {
+          gridView.hidden = true;
+          agendaView.hidden = true;
+          heatmapView.hidden = false;
+          compareView.hidden = true;
+          heatmapTab?.classList.add("is-active");
+        } else if (viewMode === "compare") {
+          gridView.hidden = true;
+          agendaView.hidden = true;
+          heatmapView.hidden = true;
+          compareView.hidden = false;
+          renderCompare();
+          compareTab?.classList.add("is-active");
+        } else {
+          gridView.hidden = true;
+          agendaView.hidden = false;
+          heatmapView.hidden = true;
+          compareView.hidden = true;
+          timeTab?.classList.add("is-active");
+        }
+      }
+
+      function updateNowLine() {
+        document.querySelectorAll(".now-line").forEach((line) => line.remove());
+        const now = new Date();
+        const day = todayIndex();
+        const column = document.querySelector(`.day-column[data-day="${day}"]`);
+        if (!column) return;
+
+        const totalMinutes = (END_HOUR - START_HOUR) * 60;
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        const fromStart = nowMinutes - START_HOUR * 60;
+        if (fromStart < 0 || fromStart > totalMinutes) return;
+
+        const line = document.createElement("div");
+        line.className = "now-line";
+        line.style.top = `${(fromStart / totalMinutes) * 728}px`;
+        column.appendChild(line);
+      }
+
+      function renderStats() {
+        const activeCourses = visibleCourses();
+        $("#courseCount").textContent = String(activeCourses.length);
+        const today = todayIndex();
+        const todayCourses = activeCourses.filter((course) => course.day === today);
+        const doneToday = todayCourses.filter((course) => isCourseChecked(course)).length;
+        $("#todayCount").textContent = String(todayCourses.length);
+        $("#todayDoneCount").textContent = String(doneToday);
+        $("#todayTotalCount").textContent = String(todayCourses.length);
+      }
+
+      function render() {
+        syncAttendance();
+        applyBackground();
+        renderHeader();
+        renderSchedule();
+        renderAgenda();
+        renderHeatmap();
+        renderStats();
+        renderCompare();
+        renderCommute();
+        applyViewMode();
+      }
+
+      function showError(message) {
+        formError.textContent = message;
+        formError.classList.add("visible");
+        formError.scrollIntoView({ block: "nearest" });
+      }
+
+      function clearError() {
+        formError.textContent = "";
+        formError.classList.remove("visible");
+      }
+
+      function showBackgroundError(message) {
+        backgroundError.textContent = message;
+        backgroundError.classList.add("visible");
+      }
+
+      function clearBackgroundError() {
+        backgroundError.textContent = "";
+        backgroundError.classList.remove("visible");
+      }
+
+      function applyBackground() {
+        const bodyElement = document.body;
+        clearBackgroundError();
+        if (backgroundSetting.kind === "image" && backgroundSetting.value) {
+          bodyElement.style.background = `url("${backgroundSetting.value}") center / cover no-repeat fixed`;
+          bodyElement.classList.add("has-custom-bg");
+          return;
+        }
+        const preset = BG_PRESETS.find((item) => item.value === backgroundSetting.value) || BG_PRESETS[0];
+        if (preset.value === "default") {
+          bodyElement.style.background = "";
+          bodyElement.classList.remove("has-custom-bg");
+          return;
+        }
+        bodyElement.style.background = preset.preview;
+        bodyElement.classList.add("has-custom-bg");
+      }
+
+      function renderBackgroundPresets() {
+        backgroundPresets.innerHTML = BG_PRESETS.map((preset) => {
+          const selected = backgroundSetting.kind === "preset" && backgroundSetting.value === preset.value;
+          return `
+            <button class="bg-option ${selected ? "is-selected" : ""}" type="button" data-background-preset="${preset.value}">
+              <span style="background:${preset.preview}"></span>
+              ${preset.label}
+            </button>
+          `;
+        }).join("");
+      }
+
+      function openBackgroundDialog() {
+        clearBackgroundError();
+        renderBackgroundPresets();
+        backgroundDialog.showModal();
+      }
+
+      function closeBackgroundDialog() {
+        backgroundDialog.close();
+        backgroundFile.value = "";
+      }
+
+      function chooseBackgroundPreset(presetValue) {
+        const preset = BG_PRESETS.find((item) => item.value === presetValue);
+        if (!preset) return;
+        backgroundSetting = { kind: "preset", value: preset.value };
+        saveBackground();
+        applyBackground();
+        renderBackgroundPresets();
+        render();
+      }
+
+      function handleBackgroundFile(file) {
+        if (!file) return;
+        clearBackgroundError();
+        if (!file.type.startsWith("image/")) {
+          showBackgroundError("请选择图片文件");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onerror = () => showBackgroundError("读取图片失败");
+        reader.onload = () => {
+          const image = new Image();
+          image.onerror = () => showBackgroundError("图片格式无法识别");
+          image.onload = () => {
+            const maxWidth = 1920;
+            const maxHeight = 1200;
+            const ratio = Math.min(1, maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.max(1, Math.round(image.naturalWidth * ratio));
+            canvas.height = Math.max(1, Math.round(image.naturalHeight * ratio));
+            const context = canvas.getContext("2d");
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.86);
+            try {
+              backgroundSetting = { kind: "image", value: dataUrl };
+              saveBackground();
+              applyBackground();
+              renderBackgroundPresets();
+              closeBackgroundDialog();
+              render();
+            } catch (error) {
+              console.warn("保存背景失败", error);
+              showBackgroundError("图片太大，请换一张小一点的图片");
+            }
+          };
+          image.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function openCommuteDialog() {
+        commuteError.textContent = "";
+        commuteOriginInput.value = commuteSetting.origin;
+        commuteDefaultInput.value = String(commuteSetting.defaultMinutes);
+        commuteNotifySelect.value = commuteSetting.notify ? "on" : "off";
+        renderCommuteRouteList();
+        commuteDialog.showModal();
+      }
+
+      function closeCommuteDialog() {
+        commuteDialog.close();
+      }
+
+      function renderCommuteRouteList() {
+        const keys = [...new Set(courses.map((course) => buildingKey(course.place)).filter(Boolean))].sort();
+        if (!keys.length) {
+          commuteRouteList.innerHTML = `<p class="compare-empty">在课程“地点”里填教学楼后，就能按教学楼单独设置步行时间。</p>`;
+          return;
+        }
+        commuteRouteList.innerHTML = keys.map((key) => {
+          const minutes = commuteSetting.routes[key] !== undefined
+            ? commuteSetting.routes[key]
+            : commuteSetting.defaultMinutes;
+          return `
+            <label class="commute-route-row">
+              <span>${escapeHtml(key)}</span>
+              <input type="number" min="1" max="120" step="1" data-route-key="${escapeHtml(key)}" value="${escapeHtml(String(minutes))}" aria-label="${escapeHtml(key)}步行分钟">
+              <span>分钟</span>
+            </label>
+          `;
+        }).join("");
+      }
+
+      function saveCommuteDialog() {
+        const origin = commuteOriginInput.value.trim() || "宿舍";
+        const defaultMinutes = Math.min(120, Math.max(1, Number(commuteDefaultInput.value) || 10));
+        const routes = {};
+        commuteRouteList.querySelectorAll("[data-route-key]").forEach((input) => {
+          const minutes = Math.round(Number(input.value));
+          if (Number.isFinite(minutes)) {
+            routes[input.dataset.routeKey] = Math.max(1, Math.min(120, minutes));
+          }
+        });
+        commuteSetting = {
+          origin,
+          defaultMinutes,
+          routes,
+          notify: commuteNotifySelect.value === "on"
+        };
+        saveCommuteSetting();
+        if (commuteSetting.notify && "Notification" in window && Notification.permission !== "granted") {
+          const permissionRequest = Notification.requestPermission();
+          if (permissionRequest && typeof permissionRequest.catch === "function") {
+            permissionRequest.catch(() => {});
+          }
+        }
+        closeCommuteDialog();
+        render();
+      }
+
+      function resetCommuteSetting() {
+        commuteSetting = { origin: "宿舍", defaultMinutes: 10, routes: {}, notify: false };
+        saveCommuteSetting();
+        commuteOriginInput.value = commuteSetting.origin;
+        commuteDefaultInput.value = String(commuteSetting.defaultMinutes);
+        commuteNotifySelect.value = "off";
+        renderCommuteRouteList();
+        render();
+      }
+
+      function buildFormOptions() {
+        daySelect.innerHTML = WEEKDAYS.map((name, index) => `<option value="${index}">${name}</option>`).join("");
+        startSelect.innerHTML = timeOptions("08:00", "21:00", 15);
+        endSelect.innerHTML = timeOptions("08:15", "22:00", 15);
+
+        colorSwatches.innerHTML = DAY_COLORS.map((color, index) => {
+          const checked = index === 0 ? " checked" : "";
+          return `
+            <label class="swatch sw-${color}" title="${DAY_COLOR_LABELS[color]}">
+              <input type="radio" name="color" value="${color}"${checked}>
+              <span class="swatch-dot"></span>
+            </label>
+          `;
+        }).join("");
+      }
+
+      function openDialog(course) {
+        clearError();
+        editingId = course ? course.id : null;
+        const isEdit = Boolean(course);
+        dialogTitle.textContent = isEdit ? "编辑课程" : "添加课程";
+        dialogSub.textContent = isEdit && course
+          ? `${WEEKDAYS[course.day]} · ${course.start}-${course.end}${isCourseChecked(course) ? " · 已自动打卡" : ""}`
+          : "";
+        dialogSub.hidden = !isEdit;
+        deleteBtn.hidden = !isEdit;
+
+        const defaultDay = course ? course.day : todayIndex();
+        daySelect.value = String(defaultDay);
+        weekRuleSelect.value = course?.weekRule || "all";
+        tagSelect.value = course?.tag || "";
+        nameInput.value = course ? course.name : "";
+        placeInput.value = course ? (course.place || "") : "";
+        teacherInput.value = course ? (course.teacher || "") : "";
+
+        const defaultStart = course ? course.start : "08:30";
+        startSelect.value = startSelect.querySelector(`option[value="${defaultStart}"]`) ? defaultStart : "08:00";
+        const preferredEnd = course ? course.end : addMinutes(startSelect.value, 90);
+        endSelect.value = endSelect.querySelector(`option[value="${preferredEnd}"]`) ? preferredEnd : "22:00";
+
+        const color = course ? course.color : DAY_COLORS[courses.length % DAY_COLORS.length];
+        const colorInput = colorSwatches.querySelector(`input[value="${color}"]`);
+        if (colorInput) colorInput.checked = true;
+
+        const currentMood = course ? courseMoodValue(course) : null;
+        const finished = Boolean(course) && isOccurrenceFinished(course, currentWeekDate(course.day || 0));
+        moodOptions.querySelectorAll(".mood-btn").forEach((button) => {
+          button.disabled = !finished;
+          button.classList.toggle("is-selected", button.dataset.mood === currentMood);
+        });
+        moodHint.textContent = !course
+          ? "课程结束后可在这里记录心情"
+          : finished
+            ? (currentMood ? `已记录：${MOOD_BY_VALUE[currentMood].label}` : "课程已结束，选择今天的心情吧")
+            : "课程结束后可在这里记录心情";
+
+        nameInput.focus();
+        dialog.showModal();
+      }
+
+      function closeDialog() {
+        dialog.close();
+        editingId = null;
+      }
+
+      function selectedColor() {
+        return colorSwatches.querySelector("input[name='color']:checked")?.value || "mint";
+      }
+
+      function onStartChange() {
+        const minEnd = addMinutes(startSelect.value, MIN_DURATION);
+        const currentEnd = endSelect.value || minEnd;
+        if (timeToMinutes(currentEnd) <= timeToMinutes(startSelect.value)) {
+          endSelect.value = endSelect.querySelector(`option[value="${minEnd}"]`) ? minEnd : "22:00";
+        } else if (timeToMinutes(currentEnd) - timeToMinutes(startSelect.value) < MIN_DURATION) {
+          endSelect.value = endSelect.querySelector(`option[value="${minEnd}"]`) ? minEnd : "22:00";
+        }
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        clearError();
+
+        const name = nameInput.value.trim();
+        const day = Number(daySelect.value);
+        const start = startSelect.value;
+        const end = endSelect.value;
+        const place = placeInput.value.trim();
+        const teacher = teacherInput.value.trim();
+        const duration = timeToMinutes(end) - timeToMinutes(start);
+
+        if (!name) {
+          showError("先给课程起个名字吧");
+          nameInput.focus();
+          return;
+        }
+        if (duration < MIN_DURATION || end <= start) {
+          showError("下课时间需要比上课时间晚至少 45 分钟");
+          return;
+        }
+
+        const payload = {
+          name,
+          day,
+          weekRule: weekRuleSelect.value,
+          tag: tagSelect.value,
+          start,
+          end,
+          place,
+          teacher,
+          color: selectedColor()
+        };
+
+        if (editingId) {
+          const index = courses.findIndex((course) => course.id === editingId);
+          if (index !== -1) {
+            courses[index] = { ...courses[index], ...payload };
+          }
+        } else {
+          payload.id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+          courses.push(payload);
+        }
+
+        courses.sort((a, b) => a.day - b.day || timeToMinutes(a.start) - timeToMinutes(b.start));
+        saveCourses();
+        render();
+        closeDialog();
+      });
+
+      deleteBtn.addEventListener("click", () => {
+        courses = courses.filter((course) => course.id !== editingId);
+        saveCourses();
+        render();
+        closeDialog();
+      });
+
+      dialog.addEventListener("click", (event) => {
+        if (event.target === dialog) closeDialog();
+      });
+
+      dialog.addEventListener("cancel", () => {
+        editingId = null;
+      });
+
+      document.querySelectorAll("[data-close-dialog]").forEach((button) => {
+        button.addEventListener("click", closeDialog);
+      });
+
+      $("#addBtn").addEventListener("click", () => openDialog(null));
+      startSelect.addEventListener("change", onStartChange);
+      moodOptions.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-mood]");
+        if (!button || button.disabled) return;
+        const course = courses.find((item) => String(item.id) === String(editingId));
+        if (!course) return;
+        const mood = button.dataset.mood;
+        setCourseMood(course, mood);
+        moodOptions.querySelectorAll(".mood-btn").forEach((item) => {
+          item.classList.toggle("is-selected", item.dataset.mood === mood);
+        });
+        moodHint.textContent = `已记录：${MOOD_BY_VALUE[mood].label}`;
+      });
+      saveHeatmapBtn.addEventListener("click", downloadHeatmap);
+
+      $("#importBtn").addEventListener("click", () => openImportDialog("mine"));
+      $("#importFriendBtn").addEventListener("click", () => openImportDialog("friend"));
+      $("#clearFriendBtn").addEventListener("click", () => {
+        friendCourses = [];
+        saveFriendCourses();
+        render();
+      });
+      compareNowBtn.addEventListener("click", renderCompare);
+      fileInput.addEventListener("change", () => handleImportFile(fileInput.files[0]));
+      dropzone.addEventListener("dragenter", (event) => {
+        event.preventDefault();
+        dropzone.classList.add("is-dragover");
+      });
+      dropzone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        dropzone.classList.add("is-dragover");
+      });
+      dropzone.addEventListener("dragleave", () => {
+        dropzone.classList.remove("is-dragover");
+      });
+      dropzone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        dropzone.classList.remove("is-dragover");
+        handleImportFile(event.dataTransfer.files[0]);
+      });
+      document.querySelectorAll("[data-close-import]").forEach((button) => {
+        button.addEventListener("click", closeImportDialog);
+      });
+      importDialog.addEventListener("click", (event) => {
+        if (event.target === importDialog) closeImportDialog();
+      });
+      confirmImport.addEventListener("click", applyPendingImport);
+      Object.values(mappingSelects).forEach((select) => {
+        select.addEventListener("change", () => {
+          if (importMatrixInfo || importHeaderIndex < 0 || !importDataRows.length) return;
+          const headers = importGrid[importHeaderIndex] || [];
+          const result = parseListRows(headers, importDataRows, readListMappings());
+          renderImportResult(result);
+        });
+      });
+
+      document.querySelectorAll("[data-schedule-view]").forEach((button) => {
+        button.addEventListener("click", () => {
+          viewMode = button.dataset.scheduleView;
+          localStorage.setItem(VIEW_KEY, viewMode);
+          applyViewMode();
+        });
+      });
+
+      agendaDays.addEventListener("click", (event) => {
+        const dayButton = event.target.closest("[data-agenda-day]");
+        if (!dayButton) return;
+        agendaDay = Number(dayButton.dataset.agendaDay);
+        renderAgenda();
+      });
+
+      timelineTrack.addEventListener("click", (event) => {
+        const courseButton = event.target.closest(".timeline-course");
+        if (!courseButton) return;
+        const course = courses.find((item) => String(item.id) === String(courseButton.dataset.id));
+        if (course) openDialog(course);
+      });
+
+      $("#commuteSettingsBtn").addEventListener("click", openCommuteDialog);
+      $("#saveCommuteBtn").addEventListener("click", saveCommuteDialog);
+      $("#resetCommuteBtn").addEventListener("click", resetCommuteSetting);
+      document.querySelectorAll("[data-close-commute]").forEach((button) => {
+        button.addEventListener("click", closeCommuteDialog);
+      });
+      commuteDialog.addEventListener("click", (event) => {
+        if (event.target === commuteDialog) closeCommuteDialog();
+      });
+      commuteDialog.addEventListener("cancel", () => {});
+
+      $("#backgroundBtn").addEventListener("click", openBackgroundDialog);
+      backgroundFile.addEventListener("change", () => handleBackgroundFile(backgroundFile.files[0]));
+      backgroundPresets.addEventListener("click", (event) => {
+        const option = event.target.closest("[data-background-preset]");
+        if (option) chooseBackgroundPreset(option.dataset.backgroundPreset);
+      });
+      $("#resetBackgroundBtn").addEventListener("click", () => {
+        chooseBackgroundPreset("default");
+        closeBackgroundDialog();
+      });
+      document.querySelectorAll("[data-close-background]").forEach((button) => {
+        button.addEventListener("click", closeBackgroundDialog);
+      });
+      backgroundDialog.addEventListener("click", (event) => {
+        if (event.target === backgroundDialog) closeBackgroundDialog();
+      });
+      backgroundDialog.addEventListener("cancel", () => {
+        backgroundFile.value = "";
+      });
+
+      render();
+      setInterval(() => {
+        const attendanceChanged = syncAttendance();
+        if (attendanceChanged) {
+          renderSchedule();
+          renderAgenda();
+          renderStats();
+        } else if (viewMode === "time") {
+          renderAgenda();
+        } else {
+          updateNowLine();
+        }
+      }, 60 * 1000);
+
+      setInterval(renderCommute, 15 * 1000);
+
+      window.addEventListener("storage", (event) => {
+        if (event.key === STORAGE_KEY) {
+          courses = loadCourses();
+          render();
+        }
+        if (event.key === FRIEND_STORAGE_KEY) {
+          friendCourses = loadFriendCourses();
+          render();
+        }
+        if (event.key === COMMUTE_KEY) {
+          commuteSetting = loadCommuteSetting();
+          render();
+        }
+      });
+
+      buildFormOptions();
+    })();
+  </script>
+</body>
+</html>
+
+
